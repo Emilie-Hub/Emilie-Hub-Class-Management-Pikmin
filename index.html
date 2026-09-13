@@ -1,0 +1,2638 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皮克敏班級探險經營、大屏點名與頭像收集系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nature: {
+                            50: '#f2f7f2',
+                            100: '#e1ede2',
+                            200: '#c3dbc5',
+                            300: '#98c19c',
+                            400: '#68a16d',
+                            500: '#46844c',
+                            600: '#356a3a',
+                            700: '#2b542f',
+                            800: '#244327',
+                            900: '#1e3821',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Noto+Sans+TC:wght@500;700;900&display=swap');
+        
+        body {
+            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #eaf5ea 0%, #d4ebd5 50%, #b8e0ba 100%);
+            min-height: 100vh;
+        }
+
+        .nature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid #a3e635;
+        }
+
+        .blackboard-bg {
+            background-color: #173324;
+            background-image: radial-gradient(#254b36 15%, transparent 16%);
+            background-size: 20px 20px;
+            color: #f0fdf4;
+            border: 12px solid #52341b;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.7), 0 12px 28px rgba(0,0,0,0.35);
+            border-radius: 1.25rem;
+        }
+
+        .touch-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .touch-btn:active {
+            transform: scale(0.94);
+        }
+
+        .reward-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+
+        .voucher-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background-color: #fff9f0;
+            border: 1px solid #ffe3c2;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .voucher-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 124, 0, 0.12);
+        }
+
+        .voucher-img {
+            width: 56px;
+            height: 56px;
+            background: #ffffff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.8rem;
+            border: 1px solid #ffedd5;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .voucher-info {
+            flex-grow: 1;
+            padding: 0 12px;
+        }
+
+        .voucher-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #292524;
+        }
+
+        .voucher-desc {
+            font-size: 12px;
+            color: #78716c;
+            margin-top: 2px;
+        }
+
+        .voucher-date {
+            font-size: 11px;
+            color: #d97706;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .voucher-btn {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(245, 124, 0, 0.25);
+            transition: all 0.15s ease;
+        }
+
+        .voucher-btn:hover {
+            opacity: 0.95;
+            transform: scale(1.02);
+        }
+
+        .voucher-btn:disabled {
+            background: #d6d3d1;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e1ede2; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #46844c; border-radius: 4px; }
+    </style>
+</head>
+<body class="text-slate-800 pb-16">
+
+    <!-- Toast 訊息通知元件 -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900/90 text-white font-bold px-5 py-3 rounded-2xl shadow-2xl z-50 hidden transition-all border border-slate-700 backdrop-blur-md flex items-center gap-2">
+        <span id="toast-icon">🌿</span>
+        <span id="toast-msg">提示訊息</span>
+    </div>
+
+    <!-- 頂部導航欄 -->
+    <header class="bg-nature-800 text-white shadow-xl sticky top-0 z-30 border-b-4 border-amber-500">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-500 p-2.5 rounded-2xl shadow-md text-2xl">
+                    🍓
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-200">皮克敏班級探險與大屏點名系統</h1>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p class="text-xs text-nature-200">大地綠意配色 • 高清皮克敏頭像圖鑑 • 分組競賽與果實加分</p>
+                        <!-- 雲端儲存狀態指示燈 -->
+                        <span id="cloud-status-badge" onclick="openSettingsModal('cloud')" class="cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 hover:bg-emerald-900 transition-all flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span id="cloud-status-text">本地已儲存</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能選單與班級切換 -->
+            <div class="flex flex-wrap items-center gap-2">
+                <select id="class-select" onchange="switchClass(this.value)" class="bg-nature-900 text-amber-300 font-bold px-3 py-2 rounded-xl border border-nature-600 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm">
+                </select>
+
+                <button onclick="openGroupScoreModal()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3.5 py-2 rounded-xl shadow border-b-4 border-amber-700 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-trophy text-base"></i>
+                    <span>🏆 組別加分</span>
+                </button>
+
+                <button onclick="openAttendanceModal()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-emerald-800 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-clipboard-user text-base"></i>
+                    <span>點名 / 作業</span>
+                </button>
+
+                <button onclick="openShopModal()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-amber-800 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-store text-base"></i>
+                    <span>🍎 果實兌換處</span>
+                </button>
+
+                <button onclick="openPikminDexModal()" class="touch-btn bg-lime-600 hover:bg-lime-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-lime-800 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-book-atlas text-base"></i>
+                    <span>皮克敏圖鑑</span>
+                </button>
+
+                <button onclick="openRandomModal()" class="touch-btn bg-teal-600 hover:bg-teal-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-teal-800 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-dice text-base"></i>
+                    <span>抽幸運兒</span>
+                </button>
+
+                <button onclick="openSettingsModal()" class="touch-btn bg-slate-700 hover:bg-slate-600 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-slate-900 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-gear text-base"></i>
+                    <span>系統設定</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主內容區 -->
+    <main class="max-w-7xl mx-auto px-4 mt-6">
+        
+        <!-- 大黑板公告區域 -->
+        <div class="blackboard-bg p-6 mb-8 relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-emerald-800/80 pb-4 mb-4">
+                <div>
+                    <span id="current-class-badge" class="bg-amber-500 text-amber-950 font-black px-3 py-1 rounded-full text-xs shadow">載入中...</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-amber-100 mt-1 flex items-center gap-2">
+                        <span>探險小隊黑板公告欄</span>
+                    </h2>
+                    <div id="board-attendance-indicator" class="text-xs text-emerald-300 mt-1 font-bold flex items-center gap-1">
+                        <i class="fa-regular fa-clock"></i> <span>今日尚未執行點名</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleFullScreenBlackboard()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-4 py-2 rounded-xl shadow flex items-center gap-2 text-sm border-2 border-amber-300">
+                        <i class="fa-solid fa-expand text-base"></i>
+                        <span>🖥️ 全屏黑板</span>
+                    </button>
+                    <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700/60 flex items-center gap-4">
+                        <div class="text-center">
+                            <div class="text-[11px] text-emerald-300 font-bold">全班探險果實</div>
+                            <div class="text-2xl font-black text-amber-300" id="total-team-score">0</div>
+                        </div>
+                        <div class="text-center border-l border-emerald-800 pl-4">
+                            <div class="text-[11px] text-emerald-300 font-bold">隊員總數</div>
+                            <div class="text-2xl font-black text-emerald-200" id="total-students-count">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 黑板告示區域 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-emerald-100 mb-4">
+                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-amber-300 text-sm"><i class="fa-solid fa-pen-ruler mr-1"></i> 今日作業事項</span>
+                        <button onclick="editBoardItem('homework')" class="text-xs text-emerald-400 hover:underline">編輯</button>
+                    </div>
+                    <p id="board-homework" class="text-sm font-medium whitespace-pre-wrap">1. 數學隨堂測驗本 p.20-21&#10;2. 國語單元六生字造詞</p>
+                </div>
+
+                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-lime-300 text-sm"><i class="fa-solid fa-bullhorn mr-1"></i> 班級重要公告</span>
+                        <button onclick="editBoardItem('announcement')" class="text-xs text-emerald-400 hover:underline">編輯</button>
+                    </div>
+                    <p id="board-announcement" class="text-sm font-medium whitespace-pre-wrap">明天下午為戶外生態觀察，請著運動服並攜帶水壺！</p>
+                </div>
+
+                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-amber-200 text-sm"><i class="fa-solid fa-quote-left mr-1"></i> 今日探險口號</span>
+                        <button onclick="editBoardItem('motto')" class="text-xs text-emerald-400 hover:underline">編輯</button>
+                    </div>
+                    <p id="board-motto" class="text-sm font-bold text-amber-200 italic">「團結合作，齊心收集探險果實！」</p>
+                </div>
+            </div>
+
+            <!-- 探險小隊里程碑 -->
+            <div>
+                <div class="flex justify-between text-xs text-emerald-200 font-bold mb-1">
+                    <span>🌱 探險里程碑進度 (每 100 果實解鎖新地標)</span>
+                    <span id="milestone-text">距離下一站地標: 0 / 100 🍓</span>
+                </div>
+                <div class="w-full bg-emerald-950 rounded-full h-4 overflow-hidden border border-emerald-600/50 p-0.5">
+                    <div id="milestone-bar" class="bg-gradient-to-r from-amber-400 via-lime-400 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 學生隊員列表標題與視角切換 -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h3 class="text-xl font-black text-nature-800 flex items-center gap-2">
+                <i class="fa-solid fa-users-viewfinder text-nature-600"></i>
+                <span>探險隊員名冊</span>
+            </h3>
+
+            <!-- 視角切換器 -->
+            <div class="flex items-center gap-2 bg-white/80 backdrop-blur p-1.5 rounded-2xl border-2 border-nature-300 shadow-sm">
+                <button id="view-btn-all" onclick="setMainDisplayView('all')" class="touch-btn px-3.5 py-1.5 rounded-xl font-black text-xs transition-all bg-nature-700 text-white shadow">
+                    <i class="fa-solid fa-user mr-1"></i> 個人卡片
+                </button>
+                <button id="view-btn-groups" onclick="setMainDisplayView('groups')" class="touch-btn px-3.5 py-1.5 rounded-xl font-black text-xs transition-all text-nature-800 hover:bg-nature-100">
+                    <i class="fa-solid fa-users-rectangle mr-1"></i> 🏆 分組視角
+                </button>
+            </div>
+        </div>
+
+        <div id="student-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        </div>
+    </main>
+
+    <!-- Modal 1. 個人加減分事由 -->
+    <div id="score-reason-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-nature-700 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
+                <div>
+                    <h3 class="text-xl font-black text-amber-200 flex items-center gap-2">
+                        <span>🍓 選擇探險果實加減事由</span>
+                    </h3>
+                    <p class="text-xs text-nature-200 mt-0.5" id="score-modal-student-name">對象：學生姓名</p>
+                </div>
+                <button onclick="closeScoreReasonModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-4 bg-nature-50">
+                <div>
+                    <h4 class="text-xs font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-plus text-emerald-600"></i> 獎勵果實項目 (加分)
+                    </h4>
+                    <div id="plus-reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-200">
+                    <h4 class="text-xs font-black text-rose-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-minus text-rose-600"></i> 扣除果實項目 (扣分)
+                    </h4>
+                    <div id="minus-reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+
+            <div class="bg-stone-100 p-4 border-t border-stone-200 flex justify-end">
+                <button onclick="closeScoreReasonModal()" class="touch-btn bg-slate-500 text-white font-bold px-6 py-2 rounded-xl text-sm">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1.5 🏆 組別批量加減分 -->
+    <div id="group-score-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-amber-600 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-amber-700 text-white p-4 flex justify-between items-center border-b-4 border-amber-900">
+                <div>
+                    <h3 class="text-xl font-black text-amber-100 flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-300"></i>
+                        <span>🏆 小隊/組別果實加減分</span>
+                    </h3>
+                    <p class="text-xs text-amber-200 mt-0.5">一鍵為全組隊員增加或扣除探險果實</p>
+                </div>
+                <button onclick="closeGroupScoreModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <div class="p-4 bg-amber-50 border-b border-amber-200 flex items-center gap-3">
+                <label class="text-xs font-black text-amber-900">選擇目標組別：</label>
+                <select id="group-score-select" class="p-2 border-2 border-amber-400 rounded-xl text-sm font-bold bg-white focus:outline-none">
+                </select>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-4 bg-nature-50">
+                <div>
+                    <h4 class="text-xs font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-plus text-emerald-600"></i> 組別獎勵項目 (加分)
+                    </h4>
+                    <div id="group-plus-reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-200">
+                    <h4 class="text-xs font-black text-rose-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-minus text-rose-600"></i> 組別扣除項目 (扣分)
+                    </h4>
+                    <div id="group-minus-reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+
+            <div class="bg-stone-100 p-4 border-t border-stone-200 flex justify-end">
+                <button onclick="closeGroupScoreModal()" class="touch-btn bg-slate-500 text-white font-bold px-6 py-2 rounded-xl text-sm">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2. 學生個人歷程與頭像切換 (含老師特許解鎖功能) -->
+    <div id="student-history-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="bg-nature-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
+                <div class="flex items-center gap-3">
+                    <div id="history-modal-pikmin-icon" class="w-12 h-12 bg-amber-100 rounded-xl p-1 border flex items-center justify-center"></div>
+                    <div>
+                        <h3 class="text-xl font-black text-amber-200" id="history-modal-title">隊員歷程紀錄</h3>
+                        <p class="text-xs text-nature-200" id="history-modal-subtitle">座號與目前果實</p>
+                    </div>
+                </div>
+                <button onclick="closeStudentHistoryModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <div class="p-4 overflow-y-auto flex-1 bg-stone-50 space-y-4">
+                <!-- 隊員造型選擇 -->
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-slate-700 text-xs">🎨 已解鎖的皮克敏頭像 (點擊佩戴):</h4>
+                        <span class="text-[11px] text-nature-600 font-bold" id="unlocked-count-badge">已解鎖: 1 / 8</span>
+                    </div>
+                    <div id="unlocked-avatars-selection" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- 🌟 新功能：老師專屬特許解鎖新品種給指定隊員 -->
+                <div class="bg-gradient-to-r from-amber-50 to-lime-50 p-3.5 rounded-2xl border-2 border-amber-300 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-black text-amber-950 text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+                            <span>老師專屬特許：直接贈送 / 解鎖新品種給此隊員</span>
+                        </h4>
+                        <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">免消耗果實</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="teacher-unlock-pikmin-select" class="p-2 text-xs font-bold border-2 border-amber-400 rounded-xl bg-white focus:outline-none flex-1 min-w-[180px]">
+                        </select>
+                        <button onclick="teacherUnlockPikminForCurrentStudent()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-black text-xs px-4 py-2 rounded-xl shadow border-b-2 border-amber-800 flex items-center gap-1">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>特許解鎖品種</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 歷程記錄 -->
+                <div>
+                    <h4 class="font-bold text-slate-700 text-sm mb-2 flex items-center justify-between">
+                        <span>📜 探險果實與出缺席歷程</span>
+                        <span class="text-[11px] text-slate-400 font-normal">依時間倒序排列</span>
+                    </h4>
+                    <div id="history-logs-list" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <div class="bg-stone-100 p-3.5 border-t border-stone-200 flex justify-end">
+                <button onclick="closeStudentHistoryModal()" class="touch-btn bg-slate-600 text-white font-bold px-6 py-2 rounded-xl text-sm">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3. 大屏點名與作業 (含時間日期登記) -->
+    <div id="attendance-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-stone-50 rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden">
+            <div class="bg-nature-800 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-4 border-amber-500">
+                <div>
+                    <h3 class="text-2xl font-black text-amber-200 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-pointer"></i> 大屏點名與作業登記系統
+                    </h3>
+                    <p class="text-xs text-nature-200">單擊切換點名狀態 / 切換模式登記今日作業繳交</p>
+                </div>
+                
+                <!-- 模式切換 -->
+                <div class="flex items-center gap-2 bg-nature-950/60 p-1.5 rounded-2xl border border-nature-600">
+                    <button id="mode-btn-attendance" onclick="setAttendanceCheckMode('attendance')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-amber-950">📋 每日點名</button>
+                    <button id="mode-btn-homework" onclick="setAttendanceCheckMode('homework')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700">📚 作業檢查</button>
+                </div>
+            </div>
+
+            <!-- 🌟 新功能：點名登記附上時間與日期選擇器 -->
+            <div class="bg-amber-100/90 border-b border-amber-300 p-3 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center gap-2 text-xs font-black text-amber-950">
+                    <i class="fa-solid fa-calendar-day text-amber-700 text-sm"></i>
+                    <span>點名登記時間：</span>
+                    <input type="datetime-local" id="attendance-datetime-input" class="bg-white border-2 border-amber-400 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none">
+                    <button onclick="setAttendanceToNow()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">現在時間 ⏱️</button>
+                </div>
+                <div id="attendance-last-saved-time" class="text-xs font-bold text-amber-900 bg-amber-200/80 px-3 py-1 rounded-xl">
+                    上次紀錄：尚無
+                </div>
+            </div>
+
+            <div class="bg-nature-100 p-3 border-b border-nature-200 flex flex-wrap justify-between items-center gap-2">
+                <div class="flex items-center gap-2" id="attendance-batch-actions"></div>
+                <div id="attendance-summary" class="text-sm font-extrabold text-nature-900 flex gap-3"></div>
+            </div>
+
+            <div class="p-4 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 bg-nature-50" id="attendance-grid"></div>
+
+            <div class="bg-stone-100 p-4 border-t border-stone-300 flex justify-end gap-3">
+                <button onclick="closeAttendanceModal()" class="touch-btn bg-slate-400 hover:bg-slate-500 text-white font-bold px-5 py-2.5 rounded-xl text-base">取消</button>
+                <button onclick="saveAttendance()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-black px-6 py-2.5 rounded-xl text-base shadow-lg border-b-4 border-amber-800 flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>儲存點名紀錄 💾</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4. 系統設定 (含自動雲端防呆設定與快照備份) -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-slate-700 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
+            <div class="bg-slate-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
+                <h3 class="text-2xl font-black text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> 系統控制與參數設定
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <div class="bg-slate-100 border-b border-slate-200 flex flex-wrap p-2 gap-2 text-sm font-bold">
+                <button id="tab-btn-reasons" onclick="switchSettingsTab('reasons')" class="px-4 py-2 rounded-xl transition-all bg-slate-700 text-amber-300 shadow">🎯 加減分細項</button>
+                <button id="tab-btn-classes" onclick="switchSettingsTab('classes')" class="px-4 py-2 rounded-xl transition-all text-slate-600 hover:bg-slate-200">🏫 班級與成員</button>
+                <button id="tab-btn-backup" onclick="switchSettingsTab('backup')" class="px-4 py-2 rounded-xl transition-all text-slate-600 hover:bg-slate-200">💾 資料備份</button>
+                <button id="tab-btn-cloud" onclick="switchSettingsTab('cloud')" class="px-4 py-2 rounded-xl transition-all text-slate-600 hover:bg-slate-200">☁️ 雲端與防呆同步</button>
+            </div>
+
+            <!-- 子頁籤 1: 加減分事由 -->
+            <div id="tab-content-reasons" class="p-5 overflow-y-auto flex-1 space-y-4">
+                <div class="flex justify-between items-center bg-amber-50 p-3 rounded-2xl border border-amber-200">
+                    <div>
+                        <h4 class="font-bold text-amber-900 text-sm">常用加減分原因細項表</h4>
+                        <p class="text-xs text-amber-700">利用 ▲ 向上 / ▼ 向下 按鈕可調整顯示順序。</p>
+                    </div>
+                    <button onclick="openAddReasonModal()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow">+ 新增事由</button>
+                </div>
+                <div id="reasons-list-container" class="space-y-2"></div>
+            </div>
+
+            <!-- 子頁籤 2: 班級與成員管理 -->
+            <div id="tab-content-classes" class="p-5 overflow-y-auto flex-1 space-y-5 hidden">
+                <div class="bg-nature-50 p-4 rounded-2xl border border-nature-300">
+                    <h4 class="font-black text-nature-900 mb-2 text-sm flex items-center justify-between">
+                        <span>🏫 班級清單管理</span>
+                        <button onclick="addNewClassPrompt()" class="touch-btn bg-nature-700 text-white text-xs px-3 py-1.5 rounded-lg">+ 新增班級</button>
+                    </h4>
+                    <div id="settings-classes-list" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="bg-stone-50 p-4 rounded-2xl border border-stone-300">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-black text-stone-800 text-sm">👥 當前班級隊員清單</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="autoAssignGroups()" class="touch-btn bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">🎲 一鍵隨機分組</button>
+                            <button onclick="openBatchAddStudentModal()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">+ ⚡ 批次新增隊員</button>
+                            <button onclick="openAddStudentModal()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">+ 單筆新增</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-stone-200 text-stone-700">
+                                    <th class="p-2">座號</th>
+                                    <th class="p-2">姓名</th>
+                                    <th class="p-2">所屬組別</th>
+                                    <th class="p-2">探險果實</th>
+                                    <th class="p-2">當前皮克敏</th>
+                                    <th class="p-2">最新點名/作業</th>
+                                    <th class="p-2 text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="settings-students-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 子頁籤 3: 備份與還原 -->
+            <div id="tab-content-backup" class="p-5 overflow-y-auto flex-1 space-y-4 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-amber-50 p-4 rounded-2xl border border-amber-300 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-black text-amber-900 text-base mb-1">📤 匯出系統備份資料 (JSON)</h4>
+                            <p class="text-xs text-amber-700 mb-4">將所有班級學生、分組、兌換獎勵、點名紀錄與皮克敏頭像解鎖狀態備份匯出。</p>
+                        </div>
+                        <button onclick="exportDataJSON()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow">下載 JSON 備份檔</button>
+                    </div>
+
+                    <div class="bg-teal-50 p-4 rounded-2xl border border-teal-300 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-black text-teal-900 text-base mb-1">📥 匯入系統備份資料</h4>
+                            <p class="text-xs text-teal-700 mb-3">選擇先前匯出的 JSON 檔案恢復數據。</p>
+                            <input type="file" id="import-json-file" accept=".json" class="text-xs text-slate-600">
+                        </div>
+                        <button onclick="importDataJSON()" class="touch-btn bg-teal-700 hover:bg-teal-600 text-white font-bold py-2.5 rounded-xl text-sm shadow mt-3">確認匯入檔案</button>
+                    </div>
+                </div>
+
+                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-200 mt-4">
+                    <h4 class="font-black text-rose-900 text-sm mb-1">⚠️ 重置為預設範例資料</h4>
+                    <p class="text-xs text-rose-700 mb-3">清除目前所有變更並還原至預設試用數據。</p>
+                    <button onclick="resetDataToDefault()" class="touch-btn bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 rounded-xl text-xs">清除資料並重置</button>
+                </div>
+            </div>
+
+            <!-- 子頁籤 4: 🌟 自動雲端 GAS 同步與防呆模式 -->
+            <div id="tab-content-cloud" class="p-5 overflow-y-auto flex-1 space-y-4 hidden">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-300 space-y-4">
+                    <div>
+                        <h4 class="font-black text-slate-800 text-sm flex items-center gap-2">
+                            <span>☁️ Google Apps Script (GAS) Web App 雲端自動同步</span>
+                            <span id="cloud-test-status" class="text-xs font-bold text-emerald-600"></span>
+                        </h4>
+                        <p class="text-xs text-slate-500 mt-1">貼上您的 GAS Web App 部署 URL，系統將啟用「自動雲端防呆保存機制」。</p>
+                    </div>
+
+                    <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-3 border rounded-xl text-sm">
+
+                    <!-- 防呆模式與自動保存開關 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+                            <input type="checkbox" id="auto-cloud-save-toggle" onchange="toggleAutoCloudSave(this.checked)" class="w-4 h-4 text-amber-600 rounded">
+                            <span>啟用「資料異動自動雲端備份」</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+                            <input type="checkbox" id="foolproof-mode-toggle" onchange="toggleFoolproofMode(this.checked)" class="w-4 h-4 text-emerald-600 rounded" checked>
+                            <span>啟用「防呆保護」（操作前自動建立本地快照）</span>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <button onclick="saveGasSetting()" class="touch-btn bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-xs">儲存設定</button>
+                        <button onclick="saveDataToCloud(true)" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>立即手動同步至雲端</span>
+                        </button>
+                        <button onclick="loadDataFromCloudWithConfirm()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1">
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                            <span>從雲端載入覆蓋</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 防呆自動快照安全區 -->
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h4 class="font-black text-emerald-950 text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                            <span>🛡️ 防呆安全快照還原</span>
+                        </h4>
+                        <p class="text-xs text-emerald-700 mt-0.5" id="snapshot-time-info">系統將自動於關鍵操作前存檔。目前快照時間：尚無快照</p>
+                    </div>
+                    <button onclick="restoreFromSnapshot()" class="touch-btn bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs px-4 py-2 rounded-xl shadow flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>還原上次防呆快照</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 border-t border-slate-200 flex justify-end">
+                <button onclick="closeSettingsModal()" class="touch-btn bg-slate-600 text-white font-bold px-6 py-2 rounded-xl text-sm">關閉設定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5. 探險果實兌換處 -->
+    <div id="shop-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-amber-50 rounded-3xl shadow-2xl border-4 border-amber-600 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="bg-amber-700 text-white p-4 flex justify-between items-center border-b-4 border-amber-900">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-xl font-black text-amber-100 flex items-center gap-2">
+                        <span>🍎 果實兌換處</span>
+                    </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openRewardManager()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3.5 py-1.5 rounded-xl text-xs shadow border-2 border-amber-300">
+                        ⚙️ 管理兌換品項 (老師)
+                    </button>
+                    <button onclick="closeShopModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+                </div>
+            </div>
+            <div class="p-5 overflow-y-auto flex-1 space-y-4">
+                <p class="text-xs text-amber-900 font-bold bg-amber-100/80 p-3 rounded-2xl border border-amber-300">
+                    💡 點選品項卡片右側的「兌換」即可為學生兌換獎勵，系統會自動扣除對應的果實數量。
+                </p>
+                <div id="reward-cards-container" class="reward-grid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5.1 教師管理獎勵 Modal -->
+    <div id="reward-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-slate-700 w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
+            <div class="bg-slate-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
+                <h3 class="text-xl font-black text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-gear"></i> 管理兌換品項 (教師專用)
+                </h3>
+                <button onclick="closeRewardManager()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-5">
+                <form id="reward-form" onsubmit="handleSaveReward(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-300 space-y-3">
+                    <input type="hidden" id="reward-id" value="">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">圖示 (Emoji)：</label>
+                            <input type="text" id="reward-icon" placeholder="🍎" required maxlength="2" class="w-full p-2 border rounded-xl text-center text-lg">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">品項名稱：</label>
+                            <input type="text" id="reward-name" placeholder="例如：免寫作業乙次" required class="w-full p-2 border rounded-xl">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">所需果實 (點數)：</label>
+                            <input type="number" id="reward-cost" min="1" placeholder="50" required class="w-full p-2 border rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">庫存 (-1 表示無限)：</label>
+                            <input type="number" id="reward-stock" value="-1" required class="w-full p-2 border rounded-xl">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="resetRewardForm()" class="touch-btn bg-slate-300 hover:bg-slate-400 text-slate-800 font-bold px-4 py-2 rounded-xl text-xs">重置</button>
+                        <button type="submit" id="reward-submit-btn" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-xl text-xs shadow">新增品項</button>
+                    </div>
+                </form>
+
+                <hr class="border-slate-200">
+
+                <div>
+                    <h4 class="font-black text-slate-800 text-sm mb-3">📋 現有兌換品項清單</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-slate-200 text-sm text-center">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700">
+                                    <th class="p-2 border border-slate-200">圖示</th>
+                                    <th class="p-2 border border-slate-200">名稱</th>
+                                    <th class="p-2 border border-slate-200">所需果實</th>
+                                    <th class="p-2 border border-slate-200">庫存</th>
+                                    <th class="p-2 border border-slate-200">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reward-list-table">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 border-t border-slate-200 flex justify-end">
+                <button onclick="closeRewardManager()" class="touch-btn bg-slate-600 text-white font-bold px-6 py-2 rounded-xl text-sm">完成並關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6. 皮克敏生態與頭像圖鑑 (含快捷贈送品種按鈕) -->
+    <div id="pikmin-dex-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-lime-50 rounded-3xl shadow-2xl border-4 border-lime-600 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="bg-lime-800 text-white p-4 flex justify-between items-center border-b-4 border-lime-950">
+                <div>
+                    <h3 class="text-xl font-black text-lime-200 flex items-center gap-2">
+                        <i class="fa-solid fa-book-atlas text-lime-300"></i> 皮克敏探險生態與頭像圖鑑
+                    </h3>
+                    <p class="text-xs text-lime-300">點擊下方品種卡片的「贈送給隊員」可由老師直接解鎖給指定小孩！</p>
+                </div>
+                <button onclick="closePikminDexModal()" class="text-white hover:text-lime-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+            <div class="p-5 overflow-y-auto flex-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="pikmin-dex-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 7. 全屏沉浸黑板 -->
+    <div id="fullscreen-blackboard-modal" class="fixed inset-0 bg-[#142e20] text-emerald-100 hidden z-50 flex flex-col p-6 border-[16px] border-[#4a2e18] shadow-2xl overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-emerald-800 pb-4 mb-6">
+            <div class="flex items-center gap-4">
+                <span class="text-4xl">🌱</span>
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-black text-amber-200" id="fs-class-title">班級黑板告示</h2>
+                    <p class="text-xs text-emerald-400">大螢幕全屏教學模式</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-right">
+                    <div id="fs-clock-time" class="text-3xl font-black text-amber-300 font-mono">12:00:00</div>
+                    <div id="fs-clock-date" class="text-xs text-emerald-300">2026/09/05</div>
+                </div>
+                <button onclick="toggleFullScreenBlackboard()" class="touch-btn bg-amber-500 text-amber-950 font-black px-5 py-2.5 rounded-2xl text-base shadow border-2 border-amber-300">❌ 離開全屏</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 mb-6">
+            <div class="bg-emerald-950/70 p-6 rounded-2xl border-2 border-emerald-800 flex flex-col">
+                <h3 class="text-xl font-black text-amber-300 mb-3"><i class="fa-solid fa-pen-ruler mr-2"></i> 今日作業事項</h3>
+                <p id="fs-homework" class="text-xl font-bold text-white leading-relaxed whitespace-pre-wrap flex-1"></p>
+            </div>
+            <div class="bg-emerald-950/70 p-6 rounded-2xl border-2 border-emerald-800 flex flex-col">
+                <h3 class="text-xl font-black text-lime-300 mb-3"><i class="fa-solid fa-bullhorn mr-2"></i> 班級重要公告</h3>
+                <p id="fs-announcement" class="text-xl font-bold text-white leading-relaxed whitespace-pre-wrap flex-1"></p>
+            </div>
+            <div class="bg-emerald-950/70 p-6 rounded-2xl border-2 border-emerald-800 flex flex-col">
+                <h3 class="text-xl font-black text-amber-200 mb-3"><i class="fa-solid fa-quote-left mr-2"></i> 今日探險口號</h3>
+                <p id="fs-motto" class="text-2xl font-black text-amber-200 italic leading-relaxed my-auto text-center"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 8. 抽幸運兒 -->
+    <div id="random-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-teal-600 w-full max-w-md p-6 text-center">
+            <h3 class="text-2xl font-black text-teal-800 mb-4">🎲 探險抽籤決定幸運兒</h3>
+            <div id="random-display" class="my-6 text-3xl font-black text-amber-600 h-24 flex items-center justify-center bg-amber-50 rounded-2xl border-2 border-dashed border-amber-300">點擊開始抽取！</div>
+            <div class="flex justify-center gap-3">
+                <button onclick="startRandomPick()" class="touch-btn bg-teal-600 hover:bg-teal-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg border-b-4 border-teal-800">開始抽籤 🎯</button>
+                <button onclick="closeRandomModal()" class="touch-btn bg-slate-400 hover:bg-slate-500 text-white font-bold px-5 py-2.5 rounded-xl">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 9. 單筆新增隊員 -->
+    <div id="add-student-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-md p-6">
+            <h3 class="text-xl font-black text-nature-800 mb-4">➕ 新增單筆隊員</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">座號</label>
+                    <input type="number" id="new-student-no" class="w-full p-2.5 border rounded-xl" placeholder="例: 1">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">姓名</label>
+                    <input type="text" id="new-student-name" class="w-full p-2.5 border rounded-xl" placeholder="例: 林小綠">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">所屬組別 (數字)</label>
+                    <input type="number" id="new-student-group" class="w-full p-2.5 border rounded-xl" value="1" placeholder="例: 1">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeAddStudentModal()" class="touch-btn bg-slate-400 text-white font-bold px-4 py-2 rounded-xl">取消</button>
+                <button onclick="addNewStudent()" class="touch-btn bg-nature-600 text-white font-bold px-5 py-2 rounded-xl">確認新增</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 10. ⚡ 批次登錄隊員 -->
+    <div id="batch-add-student-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-amber-600 w-full max-w-lg p-6">
+            <h3 class="text-xl font-black text-amber-900 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-users-line text-amber-600"></i>
+                <span>⚡ 批次登錄班級隊員</span>
+            </h3>
+            <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                請在下方輸入或貼上學生名單，每行一位。支援格式：<br>
+                • <code class="bg-slate-100 px-1 py-0.5 rounded border font-mono">座號 姓名</code>（例如：<code class="text-amber-700 font-bold">1 林小綠</code>）<br>
+                • 僅輸入<code class="bg-slate-100 px-1 py-0.5 rounded border font-mono">姓名</code>（系統自動編號）
+            </p>
+            <textarea id="batch-students-input" rows="8" class="w-full p-3 border-2 border-amber-300 rounded-2xl text-sm font-mono focus:outline-none focus:border-amber-500 shadow-inner" placeholder="1 林小綠&#10;2 陳大樹&#10;3 張小溪"></textarea>
+            
+            <div class="flex justify-between items-center mt-4">
+                <span class="text-[11px] text-slate-400 font-bold">預設分配至 第 1 組</span>
+                <div class="flex gap-2">
+                    <button onclick="closeBatchAddStudentModal()" class="touch-btn bg-slate-400 text-white font-bold px-4 py-2 rounded-xl text-xs">取消</button>
+                    <button onclick="processBatchAddStudents()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md border-b-2 border-amber-800">確認批次新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 11. 新增事由 -->
+    <div id="add-reason-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-slate-700 w-full max-w-md p-6">
+            <h3 class="text-xl font-black text-slate-800 mb-4">➕ 新增加減分細項</h3>
+            <div class="space-y-3 text-xs font-bold">
+                <div>
+                    <label class="block text-slate-600 mb-1">事由類型</label>
+                    <select id="new-reason-type" class="w-full p-2.5 border rounded-xl">
+                        <option value="plus">加分 (+ 獎勵果實)</option>
+                        <option value="minus">扣分 (- 扣除果實)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1">事由名稱</label>
+                    <input type="text" id="new-reason-title" class="w-full p-2.5 border rounded-xl" placeholder="例: 作業寫作優良">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1">變更果實數量</label>
+                    <input type="number" id="new-reason-points" class="w-full p-2.5 border rounded-xl" placeholder="例: 3">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeAddReasonModal()" class="touch-btn bg-slate-400 text-white font-bold px-4 py-2 rounded-xl text-xs">取消</button>
+                <button onclick="addNewReason()" class="touch-btn bg-slate-800 text-white font-bold px-5 py-2 rounded-xl text-xs">確認新增</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 核心邏輯 -->
+    <script>
+        const PIKMIN_TYPES = [
+            { id: 'red', name: '紅皮克敏', color: '#ef4444', icon: '🔴', cost: 0, desc: '勇敢不怕火，尖鼻子戰鬥力強！預設開放。' },
+            { id: 'yellow', name: '黃皮克敏', color: '#eab308', icon: '🟡', cost: 50, desc: '大耳朵靈敏，身體輕盈抗雷電！' },
+            { id: 'blue', name: '藍皮克敏', color: '#3b82f6', icon: '🔵', cost: 100, desc: '有鰓可以在水中自由探險呼吸。' },
+            { id: 'purple', name: '紫皮克敏', color: '#a855f7', icon: '🟣', cost: 200, desc: '體型壯碩，力量高達普通皮克敏10倍！' },
+            { id: 'white', name: '白皮克敏', color: '#e2e8f0', icon: '⚪', cost: 300, desc: '擁有閃耀紅眼，速度敏捷且具毒性。' },
+            { id: 'wing', name: '羽翼皮克敏', color: '#ec4899', icon: '🌸', cost: 350, desc: '粉紅可愛，擁有透明翅膀能空中飛行。' },
+            { id: 'rock', name: '岩石皮克敏', color: '#64748b', icon: '🪨', cost: 450, desc: '身體如岩石般堅硬，能撞碎硬物障礙。' },
+            { id: 'ice', name: '冰霜皮克敏', color: '#06b6d4', icon: '🧊', cost: 500, desc: '全身晶瑩透亮，能凍結水面與敵人。' }
+        ];
+
+        function getPikminStage(score) {
+            if (score >= 80) return { stage: 'flower', label: '🌸 盛開花朵', color: 'text-pink-500' };
+            if (score >= 30) return { stage: 'bud', label: '🌿 花蕾階段', color: 'text-lime-600' };
+            return { stage: 'leaf', label: '🌱 葉子階段', color: 'text-emerald-600' };
+        }
+
+        function renderPikminSVG(typeId, score = 0, size = 96) {
+            const p = PIKMIN_TYPES.find(x => x.id === typeId) || PIKMIN_TYPES[0];
+            const stage = getPikminStage(score).stage;
+
+            let topStemSVG = '';
+            if (stage === 'leaf') {
+                topStemSVG = `<path d="M50 25 C30 10, 20 2, 35 2 C50 2, 55 15, 50 25 Z" fill="#22c55e" stroke="#15803d" stroke-width="2"/>`;
+            } else if (stage === 'bud') {
+                topStemSVG = `<circle cx="50" cy="14" r="8" fill="#a3e635" stroke="#4d7c0f" stroke-width="2"/>
+                              <path d="M46 14 C46 6, 54 6, 54 14 Z" fill="#facc15"/>`;
+            } else {
+                topStemSVG = `<g transform="translate(50,12)">
+                                <circle cx="0" cy="0" r="12" fill="#f43f5e" />
+                                <circle cx="0" cy="0" r="5" fill="#fef08a" />
+                                <circle cx="-9" cy="-5" r="5" fill="#fb7185" />
+                                <circle cx="9" cy="-5" r="5" fill="#fb7185" />
+                                <circle cx="-9" cy="5" r="5" fill="#fb7185" />
+                                <circle cx="9" cy="5" r="5" fill="#fb7185" />
+                              </g>`;
+            }
+
+            let detailSVG = '';
+            if (typeId === 'red') {
+                detailSVG = `<polygon points="50,52 62,55 50,58" fill="#dc2626" />`;
+            } else if (typeId === 'yellow') {
+                detailSVG = `<path d="M28,45 Q15,40 22,55 Q30,50 32,48 Z" fill="#eab308"/>
+                             <path d="M72,45 Q85,40 78,55 Q70,50 68,48 Z" fill="#eab308"/>`;
+            } else if (typeId === 'white') {
+                detailSVG = `<circle cx="42" cy="48" r="4" fill="#ef4444"/>
+                             <circle cx="58" cy="48" r="4" fill="#ef4444"/>`;
+            } else if (typeId === 'wing') {
+                detailSVG = `<ellipse cx="30" cy="45" rx="10" ry="5" fill="#e0f2fe" opacity="0.8" transform="rotate(-20 30 45)"/>
+                             <ellipse cx="70" cy="45" rx="10" ry="5" fill="#e0f2fe" opacity="0.8" transform="rotate(20 70 45)"/>`;
+            }
+
+            let bodySVG = `<ellipse cx="50" cy="62" rx="18" ry="22" fill="${p.color}" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>`;
+            if (typeId === 'rock') {
+                bodySVG = `<polygon points="35,45 65,42 72,65 50,82 28,68" fill="${p.color}" stroke="#334155" stroke-width="3"/>`;
+            }
+
+            return `
+            <svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-md transition-all hover:scale-105">
+                <line x1="50" y1="25" x2="50" y2="45" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+                ${topStemSVG}
+                ${detailSVG}
+                ${bodySVG}
+                <circle cx="42" cy="48" r="5" fill="white"/>
+                <circle cx="42" cy="48" r="2.5" fill="#0f172a"/>
+                <circle cx="58" cy="48" r="5" fill="white"/>
+                <circle cx="58" cy="48" r="2.5" fill="#0f172a"/>
+            </svg>`;
+        }
+
+        let currentMainDisplayView = 'all';
+
+        let appState = {
+            currentClassId: 'class_a',
+            gasUrl: localStorage.getItem('pikmin_gas_url') || '',
+            autoCloudSave: localStorage.getItem('pikmin_auto_cloud') === 'true',
+            foolproofMode: localStorage.getItem('pikmin_foolproof') !== 'false',
+            reasons: [
+                { id: 1, type: 'plus', title: '課堂發言踴躍與主動發問', points: 2 },
+                { id: 2, type: 'plus', title: '作業寫作優良與字體工整', points: 3 },
+                { id: 3, type: 'plus', title: '熱心協助同學與擔任志工', points: 5 },
+                { id: 4, type: 'plus', title: '小組合作競賽獲勝', points: 5 },
+                { id: 5, type: 'minus', title: '課堂分心或隨意交談', points: 1 },
+                { id: 6, type: 'minus', title: '未依時繳交作業或缺交', points: 2 },
+                { id: 7, type: 'minus', title: '個人座位周遭整潔不佳', points: 1 }
+            ],
+            classes: {
+                'class_a': {
+                    name: '五年一班 (森林探險隊)',
+                    homeworkText: '1. 數學隨堂測驗本 p.20-21\n2. 國語單元六生字造詞',
+                    announcementText: '明天下午為戶外生態觀察，請著運動服並攜帶水壺！',
+                    mottoText: '「團結合作，齊心收集探險果實！」',
+                    lastAttendanceRecord: null,
+                    rewards: [
+                        { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
+                        { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
+                        { id: 'r3', name: "當一日小幫手", cost: 30, icon: "🍌", stock: -1 }
+                    ],
+                    students: [
+                        { id: 101, no: 1, group: 1, name: '林小綠', score: 35, pikmin: 'red', unlockedAvatars: ['red'], status: '未到', hwStatus: '已繳交', lastAttendanceTime: '', history: [] },
+                        { id: 102, no: 2, group: 1, name: '陳大樹', score: 85, pikmin: 'yellow', unlockedAvatars: ['red', 'yellow'], status: '未到', hwStatus: '已繳交', lastAttendanceTime: '', history: [] },
+                        { id: 103, no: 3, group: 2, name: '張小溪', score: 15, pikmin: 'blue', unlockedAvatars: ['red'], status: '未到', hwStatus: '未繳交', lastAttendanceTime: '', history: [] },
+                        { id: 104, no: 4, group: 2, name: '黃紫藤', score: 220, pikmin: 'purple', unlockedAvatars: ['red', 'yellow', 'purple'], status: '未到', hwStatus: '需訂正', lastAttendanceTime: '', history: [] }
+                    ]
+                }
+            }
+        };
+
+        // 讀取本地資料
+        const localSaved = localStorage.getItem('pikmin_app_data_v3');
+        if (localSaved) {
+            try {
+                const parsed = JSON.parse(localSaved);
+                if (parsed.classes) appState.classes = parsed.classes;
+                if (parsed.reasons) appState.reasons = parsed.reasons;
+            } catch(e) {
+                console.error("載入舊資料失敗", e);
+            }
+        }
+
+        // 建立防呆自動安全快照 (Snapshot)
+        function makeFoolproofSnapshot() {
+            try {
+                const snapshotPayload = {
+                    time: new Date().toLocaleString(),
+                    data: {
+                        classes: appState.classes,
+                        reasons: appState.reasons
+                    }
+                };
+                localStorage.setItem('pikmin_foolproof_snapshot', JSON.stringify(snapshotPayload));
+                updateSnapshotInfoUI();
+            } catch(e) {
+                console.warn("快照儲存失敗", e);
+            }
+        }
+
+        function updateSnapshotInfoUI() {
+            const el = document.getElementById('snapshot-time-info');
+            if (!el) return;
+            const saved = localStorage.getItem('pikmin_foolproof_snapshot');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    el.innerText = `系統已於 ${parsed.time} 建立防呆安全快照。`;
+                } catch(e) {
+                    el.innerText = '尚無快照';
+                }
+            } else {
+                el.innerText = '尚無快照';
+            }
+        }
+
+        function restoreFromSnapshot() {
+            const saved = localStorage.getItem('pikmin_foolproof_snapshot');
+            if (!saved) {
+                alert('目前沒有找到安全快照紀錄！');
+                return;
+            }
+            try {
+                const parsed = JSON.parse(saved);
+                if (confirm(`確定要還原到快照時間【${parsed.time}】的資料嗎？\n此動作將復原當時的所有班級、學生與點名狀態！`)) {
+                    appState.classes = parsed.data.classes;
+                    appState.reasons = parsed.data.reasons;
+                    saveData(false); // 不重覆寫快照
+                    renderAll();
+                    showToast('🛡️ 已成功由防呆快照還原系統！');
+                }
+            } catch(e) {
+                alert('快照格式毀損，無法還原！');
+            }
+        }
+
+        // 防抖計時器
+        let autoCloudDebounceTimer = null;
+
+        function updateCloudBadgeUI(status) {
+            const badge = document.getElementById('cloud-status-badge');
+            const txt = document.getElementById('cloud-status-text');
+            if (!badge || !txt) return;
+
+            if (status === 'syncing') {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-500 text-amber-300 transition-all flex items-center gap-1";
+                txt.innerText = "雲端同步中...";
+            } else if (status === 'synced') {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 transition-all flex items-center gap-1";
+                txt.innerText = "☁️ 雲端已同步";
+            } else if (status === 'error') {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500 text-rose-300 transition-all flex items-center gap-1";
+                txt.innerText = "⚠️ 雲端未連通 (本地已存)";
+            } else {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-900 border border-slate-600 text-slate-300 transition-all flex items-center gap-1";
+                txt.innerText = "💾 本地儲存";
+            }
+        }
+
+        function saveData(createSnapshot = true) {
+            // 1. 本地即時保存
+            localStorage.setItem('pikmin_app_data_v3', JSON.stringify({
+                classes: appState.classes,
+                reasons: appState.reasons
+            }));
+
+            // 2. 防呆模式快照
+            if (createSnapshot && appState.foolproofMode) {
+                makeFoolproofSnapshot();
+            }
+
+            // 3. 自動雲端備份防抖排程
+            if (appState.autoCloudSave && appState.gasUrl) {
+                updateCloudBadgeUI('syncing');
+                clearTimeout(autoCloudDebounceTimer);
+                autoCloudDebounceTimer = setTimeout(() => {
+                    saveDataToCloud(false);
+                }, 2000);
+            } else {
+                updateCloudBadgeUI(appState.gasUrl ? 'synced' : 'local');
+            }
+        }
+
+        function getCurrentClass() {
+            const cls = appState.classes[appState.currentClassId];
+            if (cls && !cls.rewards) {
+                cls.rewards = [
+                    { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
+                    { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
+                    { id: 'r3', name: "當一日小幫手", cost: 30, icon: "🍌", stock: -1 }
+                ];
+            }
+            return cls;
+        }
+
+        function showToast(msg, icon = '🌿') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+            toastMsg.innerText = msg;
+            toastIcon.innerText = icon;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 2600);
+        }
+
+        function setMainDisplayView(mode) {
+            currentMainDisplayView = mode;
+            document.getElementById('view-btn-all').className = (mode === 'all') ? "touch-btn px-3.5 py-1.5 rounded-xl font-black text-xs transition-all bg-nature-700 text-white shadow" : "touch-btn px-3.5 py-1.5 rounded-xl font-black text-xs transition-all text-nature-800 hover:bg-nature-100";
+            document.getElementById('view-btn-groups').className = (mode === 'groups') ? "touch-btn px-3.5 py-1.5 rounded-xl font-black text-xs transition-all bg-nature-700 text-white shadow" : "touch-btn px-3.5 py-1.5 rounded-xl font-black text-xs transition-all text-nature-800 hover:bg-nature-100";
+            renderStudentCards();
+        }
+
+        function renderAll() {
+            renderClassSelect();
+            renderBlackboard();
+            renderStudentCards();
+            renderStore();
+            updateSnapshotInfoUI();
+            updateCloudBadgeUI(appState.gasUrl ? 'synced' : 'local');
+        }
+
+        function renderClassSelect() {
+            const select = document.getElementById('class-select');
+            select.innerHTML = '';
+            Object.keys(appState.classes).forEach(id => {
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.innerText = appState.classes[id].name;
+                opt.selected = (id === appState.currentClassId);
+                select.appendChild(opt);
+            });
+        }
+
+        function switchClass(classId) {
+            appState.currentClassId = classId;
+            renderAll();
+        }
+
+        function renderBlackboard() {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            document.getElementById('current-class-badge').innerText = cls.name;
+            document.getElementById('board-homework').innerText = cls.homeworkText || '尚無作業';
+            document.getElementById('board-announcement').innerText = cls.announcementText || '尚無公告';
+            document.getElementById('board-motto').innerText = cls.mottoText || '「加油！」';
+
+            // 顯示最新點名紀錄時間
+            const indicatorEl = document.getElementById('board-attendance-indicator');
+            if (cls.lastAttendanceRecord) {
+                indicatorEl.innerHTML = `<i class="fa-solid fa-clipboard-check text-lime-400"></i> 最新點名紀錄：<span class="text-amber-200 font-mono">${cls.lastAttendanceRecord.dateTime}</span> (${cls.lastAttendanceRecord.summary || '已登記'})`;
+            } else {
+                indicatorEl.innerHTML = `<i class="fa-regular fa-clock"></i> <span>今日尚未執行點名</span>`;
+            }
+
+            document.getElementById('total-students-count').innerText = cls.students.length;
+            const totalScore = cls.students.reduce((s, x) => s + x.score, 0);
+            document.getElementById('total-team-score').innerText = totalScore;
+
+            const milestoneTarget = 100;
+            const curProgress = totalScore % milestoneTarget;
+            const pct = Math.min(100, Math.round((curProgress / milestoneTarget) * 100));
+            document.getElementById('milestone-text').innerText = `距離下一站地標: ${curProgress} / ${milestoneTarget} 🍓`;
+            document.getElementById('milestone-bar').style.width = `${pct}%`;
+        }
+
+        function renderStudentCards() {
+            const grid = document.getElementById('student-grid');
+            grid.innerHTML = '';
+
+            const cls = getCurrentClass();
+            if (!cls || cls.students.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-nature-700 font-black">目前此班級尚無隊員資料。</div>`;
+                return;
+            }
+
+            if (currentMainDisplayView === 'all') {
+                const sorted = [...cls.students].sort((a,b) => a.no - b.no);
+
+                sorted.forEach(st => {
+                    const pikminInfo = PIKMIN_TYPES.find(p => p.id === st.pikmin) || PIKMIN_TYPES[0];
+                    const stageObj = getPikminStage(st.score);
+
+                    let statusBadge = `<span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-bold">未點名</span>`;
+                    if (st.status === '出席') statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-bold border border-emerald-300">✅ 出席</span>`;
+                    if (st.status === '請假') statusBadge = `<span class="bg-sky-100 text-sky-800 text-xs px-2 py-0.5 rounded-full font-bold border border-sky-300">🟦 請假</span>`;
+                    if (st.status === '遲到') statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold border border-amber-300">⏱️ 遲到</span>`;
+                    if (st.status === '曠課') statusBadge = `<span class="bg-rose-100 text-rose-800 text-xs px-2 py-0.5 rounded-full font-bold border border-rose-300">❌ 曠課</span>`;
+
+                    let hwBadge = '';
+                    if (st.hwStatus === '已繳交') hwBadge = `<span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">📚 作業已繳</span>`;
+                    else if (st.hwStatus === '需訂正') hwBadge = `<span class="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">✏️ 需訂正</span>`;
+                    else if (st.hwStatus === '未繳交') hwBadge = `<span class="text-[10px] text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">⚠️ 未繳作業</span>`;
+                    else if (st.hwStatus === '缺交待補') hwBadge = `<span class="text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">🚨 缺交待補</span>`;
+
+                    const unlockedCount = (st.unlockedAvatars && st.unlockedAvatars.length) ? st.unlockedAvatars.length : 1;
+
+                    const card = document.createElement('div');
+                    card.className = "nature-card rounded-3xl p-4 shadow-lg flex flex-col justify-between hover:shadow-2xl transition-all border-2 border-nature-300 relative overflow-hidden";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="flex items-center gap-1.5">
+                                <span class="bg-nature-800 text-white font-black text-xs px-2.5 py-1 rounded-xl shadow">
+                                    ${st.no} 號
+                                </span>
+                                <span class="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[11px] px-2 py-0.5 rounded-lg">
+                                    第 ${st.group || 1} 組
+                                </span>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                ${statusBadge}
+                                ${hwBadge}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2 my-2 cursor-pointer group" onclick="openStudentHistoryModal(${st.id})">
+                            <div class="p-1 bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-inner flex items-center justify-center group-hover:scale-105 transition-transform relative">
+                                ${renderPikminSVG(st.pikmin, st.score, 88)}
+                                <span class="absolute -bottom-1 -right-1 text-[10px] bg-nature-800 text-white font-black px-1.5 py-0.2 rounded-full border border-nature-400">
+                                    ${unlockedCount}種
+                                </span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-2xl font-black text-slate-800 group-hover:text-amber-600 transition-colors">${st.name}</h4>
+                                    <button onclick="event.stopPropagation(); quickTeacherUnlock(${st.id})" title="老師特許解鎖品種" class="text-amber-600 hover:text-amber-700 bg-amber-100 hover:bg-amber-200 p-1.5 rounded-xl text-xs font-bold transition-all">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs font-bold ${stageObj.color}">${stageObj.label}</p>
+                                <span class="text-[10px] text-nature-600 font-bold">${pikminInfo.name}</span>
+                                ${st.lastAttendanceTime ? `<div class="text-[9px] text-slate-400 mt-1 font-mono"><i class="fa-regular fa-clock"></i> ${st.lastAttendanceTime}</div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-amber-100 to-amber-50 p-2.5 rounded-2xl border border-amber-300 my-2 flex justify-between items-center shadow-inner">
+                            <span class="text-xs text-amber-950 font-black">🍓 探險果實</span>
+                            <span class="text-2xl font-black text-amber-600 tracking-wider">${st.score}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-nature-200">
+                            <button onclick="openScoreReasonModal(${st.id}, 'plus')" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl shadow border-b-4 border-emerald-800 flex items-center justify-center gap-1 text-sm">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                <span>獎勵果實</span>
+                            </button>
+                            <button onclick="openScoreReasonModal(${st.id}, 'minus')" class="touch-btn bg-rose-600 hover:bg-rose-500 text-white font-black py-2.5 rounded-xl shadow border-b-4 border-rose-800 flex items-center justify-center gap-1 text-sm">
+                                <i class="fa-solid fa-minus-circle"></i>
+                                <span>扣除果實</span>
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } else {
+                const groupsMap = {};
+                cls.students.forEach(st => {
+                    const g = st.group || 1;
+                    if (!groupsMap[g]) groupsMap[g] = [];
+                    groupsMap[g].push(st);
+                });
+
+                const groupKeys = Object.keys(groupsMap).sort((a,b) => parseInt(a) - parseInt(b));
+
+                groupKeys.forEach(gNum => {
+                    const members = groupsMap[gNum].sort((a,b) => a.no - b.no);
+                    const groupTotalScore = members.reduce((sum, m) => sum + m.score, 0);
+
+                    const gCard = document.createElement('div');
+                    gCard.className = "bg-white rounded-3xl p-5 shadow-xl border-4 border-amber-400 flex flex-col justify-between relative";
+                    
+                    let membersHTML = members.map(m => `
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-amber-50/80 border border-amber-200 hover:bg-amber-100 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 flex items-center justify-center bg-white rounded-lg border">
+                                    ${renderPikminSVG(m.pikmin, m.score, 28)}
+                                </div>
+                                <span class="font-bold text-xs text-slate-800">${m.no}號 ${m.name}</span>
+                            </div>
+                            <span class="font-black text-amber-600 text-sm">${m.score} 🍓</span>
+                        </div>
+                    `).join('');
+
+                    gCard.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center border-b-2 border-amber-200 pb-3 mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">🚩</span>
+                                    <div>
+                                        <h4 class="text-xl font-black text-amber-950">第 ${gNum} 小隊</h4>
+                                        <span class="text-xs text-amber-700 font-bold">${members.length} 位隊員</span>
+                                    </div>
+                                </div>
+                                <div class="text-right bg-amber-500 text-amber-950 px-3 py-1.5 rounded-2xl border-2 border-amber-300 shadow-sm">
+                                    <div class="text-[10px] font-bold uppercase tracking-wider">小隊總果實</div>
+                                    <div class="text-xl font-black">${groupTotalScore}</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 mb-4 max-h-60 overflow-y-auto pr-1">
+                                ${membersHTML}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 pt-3 border-t-2 border-amber-200">
+                            <button onclick="openGroupScoreModal(${gNum})" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black py-2.5 rounded-xl shadow border-b-4 border-amber-700 flex items-center justify-center gap-1 text-xs">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                <span>➕ 組加分</span>
+                            </button>
+                            <button onclick="openGroupScoreModal(${gNum})" class="touch-btn bg-rose-500 hover:bg-rose-400 text-white font-black py-2.5 rounded-xl shadow border-b-4 border-rose-700 flex items-center justify-center gap-1 text-xs">
+                                <i class="fa-solid fa-minus-circle"></i>
+                                <span>➖ 組扣分</span>
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(gCard);
+                });
+            }
+        }
+
+        function renderStore() {
+            const container = document.getElementById('reward-cards-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const cls = getCurrentClass();
+            if (!cls || !cls.rewards) return;
+
+            cls.rewards.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'voucher-card';
+                card.innerHTML = `
+                    <div class="voucher-img">
+                        <span>${item.icon}</span>
+                    </div>
+                    <div class="voucher-info">
+                        <div class="voucher-title">${item.name}</div>
+                        <div class="voucher-desc">消耗 <strong class="text-amber-600 font-extrabold">${item.cost}</strong> 果實點數</div>
+                        <div class="voucher-date">庫存：${item.stock === -1 ? '無限制' : item.stock + ' 個'}</div>
+                    </div>
+                    <button onclick="redeemReward('${item.id}')" ${item.stock === 0 ? 'disabled' : ''} class="voucher-btn">
+                        ${item.stock === 0 ? '售完' : '兌換'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openShopModal() {
+            renderStore();
+            document.getElementById('shop-modal').classList.remove('hidden');
+        }
+
+        function closeShopModal() {
+            document.getElementById('shop-modal').classList.add('hidden');
+        }
+
+        function openRewardManager() {
+            renderRewardTable();
+            document.getElementById('reward-modal').classList.remove('hidden');
+        }
+
+        function closeRewardManager() {
+            document.getElementById('reward-modal').classList.add('hidden');
+            resetRewardForm();
+            renderStore();
+        }
+
+        function renderRewardTable() {
+            const tbody = document.getElementById('reward-list-table');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const cls = getCurrentClass();
+            if (!cls || !cls.rewards) return;
+
+            cls.rewards.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-200 hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-2 text-xl">${item.icon}</td>
+                    <td class="p-2 font-bold text-slate-800">${item.name}</td>
+                    <td class="p-2 font-black text-amber-600">${item.cost}</td>
+                    <td class="p-2 font-bold">${item.stock === -1 ? '∞' : item.stock}</td>
+                    <td class="p-2">
+                        <button onclick="editReward('${item.id}')" class="touch-btn text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2.5 py-1 rounded-lg mr-1">編輯</button>
+                        <button onclick="deleteReward('${item.id}')" class="touch-btn text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-2.5 py-1 rounded-lg">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleSaveReward(e) {
+            e.preventDefault();
+            const id = document.getElementById('reward-id').value;
+            const icon = document.getElementById('reward-icon').value || '🍎';
+            const name = document.getElementById('reward-name').value;
+            const cost = parseInt(document.getElementById('reward-cost').value, 10);
+            const stock = parseInt(document.getElementById('reward-stock').value, 10);
+
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            if (id) {
+                const target = cls.rewards.find(r => r.id === id);
+                if (target) {
+                    target.icon = icon;
+                    target.name = name;
+                    target.cost = cost;
+                    target.stock = stock;
+                }
+            } else {
+                cls.rewards.push({
+                    id: 'r_' + Date.now(),
+                    icon,
+                    name,
+                    cost,
+                    stock
+                });
+            }
+
+            saveData();
+            renderRewardTable();
+            resetRewardForm();
+            showToast('獎勵設定已成功儲存！');
+        }
+
+        function editReward(id) {
+            const cls = getCurrentClass();
+            const target = cls.rewards.find(r => r.id === id);
+            if (!target) return;
+
+            document.getElementById('reward-id').value = target.id;
+            document.getElementById('reward-icon').value = target.icon;
+            document.getElementById('reward-name').value = target.name;
+            document.getElementById('reward-cost').value = target.cost;
+            document.getElementById('reward-stock').value = target.stock;
+            document.getElementById('reward-submit-btn').textContent = '更新品項';
+        }
+
+        function deleteReward(id) {
+            if (!confirm('確定要刪除這個兌換品項嗎？')) return;
+            const cls = getCurrentClass();
+            cls.rewards = cls.rewards.filter(r => r.id !== id);
+            saveData();
+            renderRewardTable();
+            showToast('已刪除品項！');
+        }
+
+        function resetRewardForm() {
+            document.getElementById('reward-id').value = '';
+            document.getElementById('reward-form').reset();
+            document.getElementById('reward-submit-btn').textContent = '新增品項';
+        }
+
+        function redeemReward(rewardId) {
+            const cls = getCurrentClass();
+            const reward = cls.rewards.find(r => r.id === rewardId);
+            if (!reward) return;
+
+            const studentListText = cls.students.map(s => `${s.no}號 ${s.name} (目前果實: ${s.score})`).join('\n');
+            const inputVal = prompt(`請輸入要兌換「${reward.name}」(需 ${reward.cost} 顆果實) 的學生座號或姓名：\n\n${studentListText}`);
+            if (!inputVal) return;
+
+            const student = cls.students.find(s => s.no == inputVal || s.name === inputVal.trim());
+            if (!student) {
+                alert('找不到該位隊員！請確認座號或姓名是否正確。');
+                return;
+            }
+
+            if (student.score < reward.cost) {
+                alert(`【果實不足】${student.name} 目前只有 ${student.score} 顆果實，還差 ${reward.cost - student.score} 顆！`);
+                return;
+            }
+
+            if (reward.stock === 0) {
+                alert('該獎勵已無庫存！');
+                return;
+            }
+
+            student.score -= reward.cost;
+            if (reward.stock > 0) reward.stock -= 1;
+
+            if (!student.history) student.history = [];
+            student.history.unshift({
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                reason: `兌換獎勵：${reward.name}`,
+                delta: -reward.cost,
+                pointsAfter: student.score
+            });
+
+            saveData();
+            renderAll();
+            renderStore();
+            showToast(`🎉 兌換成功！${student.name} 成功兌換「${reward.name}」，剩餘果實：${student.score}`);
+        }
+
+        let currentTargetStudentId = null;
+
+        function openScoreReasonModal(studentId, mode) {
+            currentTargetStudentId = studentId;
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            document.getElementById('score-modal-student-name').innerText = `對象：${student.no}號 ${student.name} (目前果實: ${student.score})`;
+
+            const plusGrid = document.getElementById('plus-reasons-grid');
+            const minusGrid = document.getElementById('minus-reasons-grid');
+            plusGrid.innerHTML = '';
+            minusGrid.innerHTML = '';
+
+            appState.reasons.forEach(r => {
+                const btn = document.createElement('button');
+                btn.onclick = () => applyScoreAdjustment(r.title, r.points, r.type);
+                
+                if (r.type === 'plus') {
+                    btn.className = "touch-btn p-3 bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-400 text-emerald-950 rounded-2xl font-black text-left flex justify-between items-center shadow-sm h-16";
+                    btn.innerHTML = `<span class="text-sm">${r.title}</span><span class="bg-emerald-600 text-white text-sm px-2.5 py-1 rounded-xl font-black">+${r.points}</span>`;
+                    plusGrid.appendChild(btn);
+                } else {
+                    btn.className = "touch-btn p-3 bg-rose-100 hover:bg-rose-200 border-2 border-rose-400 text-rose-950 rounded-2xl font-black text-left flex justify-between items-center shadow-sm h-16";
+                    btn.innerHTML = `<span class="text-sm">${r.title}</span><span class="bg-rose-600 text-white text-sm px-2.5 py-1 rounded-xl font-black">-${r.points}</span>`;
+                    minusGrid.appendChild(btn);
+                }
+            });
+
+            document.getElementById('score-reason-modal').classList.remove('hidden');
+        }
+
+        function closeScoreReasonModal() {
+            document.getElementById('score-reason-modal').classList.add('hidden');
+        }
+
+        function applyScoreAdjustment(reasonTitle, points, type) {
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === currentTargetStudentId);
+            if (!student) return;
+
+            const delta = (type === 'plus') ? points : -points;
+            student.score = Math.max(0, student.score + delta);
+
+            if (!student.history) student.history = [];
+            student.history.unshift({
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                reason: reasonTitle,
+                delta: delta,
+                pointsAfter: student.score
+            });
+
+            saveData();
+            renderAll();
+            closeScoreReasonModal();
+            showToast(`${student.name} ${delta > 0 ? '+' : ''}${delta} 果實 (${reasonTitle})`);
+        }
+
+        let currentTargetGroup = null;
+
+        function openGroupScoreModal(groupNum = null) {
+            const cls = getCurrentClass();
+            if (!cls || cls.students.length === 0) {
+                showToast("目前尚無隊員資料！");
+                return;
+            }
+
+            const existingGroups = Array.from(new Set(cls.students.map(s => s.group || 1))).sort((a,b) => a - b);
+            const selectEl = document.getElementById('group-score-select');
+            selectEl.innerHTML = '';
+
+            existingGroups.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.innerText = `第 ${g} 小隊`;
+                if (groupNum && g === groupNum) opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+
+            currentTargetGroup = groupNum || existingGroups[0];
+
+            const plusGrid = document.getElementById('group-plus-reasons-grid');
+            const minusGrid = document.getElementById('group-minus-reasons-grid');
+            plusGrid.innerHTML = '';
+            minusGrid.innerHTML = '';
+
+            appState.reasons.forEach(r => {
+                const btn = document.createElement('button');
+                btn.onclick = () => applyGroupScoreAdjustment(r.title, r.points, r.type);
+                
+                if (r.type === 'plus') {
+                    btn.className = "touch-btn p-3 bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-400 text-emerald-950 rounded-2xl font-black text-left flex justify-between items-center shadow-sm h-16";
+                    btn.innerHTML = `<span class="text-sm">${r.title}</span><span class="bg-emerald-600 text-white text-sm px-2.5 py-1 rounded-xl font-black">+${r.points}</span>`;
+                    plusGrid.appendChild(btn);
+                } else {
+                    btn.className = "touch-btn p-3 bg-rose-100 hover:bg-rose-200 border-2 border-rose-400 text-rose-950 rounded-2xl font-black text-left flex justify-between items-center shadow-sm h-16";
+                    btn.innerHTML = `<span class="text-sm">${r.title}</span><span class="bg-rose-600 text-white text-sm px-2.5 py-1 rounded-xl font-black">-${r.points}</span>`;
+                    minusGrid.appendChild(btn);
+                }
+            });
+
+            document.getElementById('group-score-modal').classList.remove('hidden');
+        }
+
+        function closeGroupScoreModal() {
+            document.getElementById('group-score-modal').classList.add('hidden');
+        }
+
+        function applyGroupScoreAdjustment(reasonTitle, points, type) {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            const selectedGroup = parseInt(document.getElementById('group-score-select').value);
+            const delta = (type === 'plus') ? points : -points;
+
+            const groupMembers = cls.students.filter(s => (s.group || 1) === selectedGroup);
+            if (groupMembers.length === 0) {
+                alert(`第 ${selectedGroup} 組目前沒有任何隊員！`);
+                return;
+            }
+
+            groupMembers.forEach(st => {
+                st.score = Math.max(0, st.score + delta);
+                if (!st.history) st.history = [];
+                st.history.unshift({
+                    id: Date.now() + Math.random(),
+                    timestamp: new Date().toLocaleString(),
+                    reason: `[小隊獎勵] ${reasonTitle}`,
+                    delta: delta,
+                    pointsAfter: st.score
+                });
+            });
+
+            saveData();
+            renderAll();
+            closeGroupScoreModal();
+            showToast(`🎉 第 ${selectedGroup} 小隊全體 (${groupMembers.length}人) ${delta > 0 ? '+' : ''}${delta} 果實！`);
+        }
+
+        function autoAssignGroups() {
+            const cls = getCurrentClass();
+            if (!cls || cls.students.length === 0) return;
+
+            const countStr = prompt('請輸入要分成的組別數量 (例如: 4)', '4');
+            if (!countStr) return;
+
+            const numGroups = parseInt(countStr, 10);
+            if (isNaN(numGroups) || numGroups < 1) {
+                alert('請輸入有效的數字組數！');
+                return;
+            }
+
+            const shuffled = [...cls.students].sort(() => Math.random() - 0.5);
+            shuffled.forEach((st, idx) => {
+                st.group = (idx % numGroups) + 1;
+            });
+
+            saveData();
+            renderAll();
+            renderClassesSettings();
+            showToast(`成功將全班隨機分為 ${numGroups} 組！`);
+        }
+
+        function changeStudentGroupPrompt(studentId) {
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            const newG = prompt(`請輸入 ${student.name} 的新組別數字：`, student.group || 1);
+            if (newG !== null) {
+                const gVal = parseInt(newG, 10);
+                if (!isNaN(gVal) && gVal > 0) {
+                    student.group = gVal;
+                    saveData();
+                    renderAll();
+                    renderClassesSettings();
+                    showToast(`已變更 ${student.name} 為第 ${gVal} 組`);
+                }
+            }
+        }
+
+        // ==========================================
+        // 🌟 新增功能 1：老師特許解鎖新品種給指定隊員
+        // ==========================================
+        function populateTeacherUnlockSelect(student) {
+            const select = document.getElementById('teacher-unlock-pikmin-select');
+            if (!select) return;
+            select.innerHTML = '';
+
+            const unlocked = student.unlockedAvatars || ['red'];
+            PIKMIN_TYPES.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                const isAlreadyUnlocked = unlocked.includes(p.id);
+                opt.innerText = `${p.icon} ${p.name} ${isAlreadyUnlocked ? ' (已擁有)' : ' (可特許解鎖)'}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function quickTeacherUnlock(studentId) {
+            openStudentHistoryModal(studentId);
+            setTimeout(() => {
+                const sel = document.getElementById('teacher-unlock-pikmin-select');
+                if (sel) sel.focus();
+            }, 200);
+        }
+
+        function teacherUnlockPikminForCurrentStudent() {
+            if (!currentTargetStudentId) return;
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === currentTargetStudentId);
+            if (!student) return;
+
+            const selectedPikminId = document.getElementById('teacher-unlock-pikmin-select').value;
+            const pikminInfo = PIKMIN_TYPES.find(p => p.id === selectedPikminId);
+            if (!pikminInfo) return;
+
+            if (!student.unlockedAvatars) student.unlockedAvatars = ['red'];
+
+            if (student.unlockedAvatars.includes(selectedPikminId)) {
+                if (!confirm(`${student.name} 已經擁有【${pikminInfo.name}】了！是否要直接幫他替換為目前造型？`)) {
+                    return;
+                }
+                student.pikmin = selectedPikminId;
+                saveData();
+                renderAll();
+                openStudentHistoryModal(student.id);
+                showToast(`已為 ${student.name} 換上 ${pikminInfo.name} 造型！`, '✨');
+                return;
+            }
+
+            // 正式解鎖
+            student.unlockedAvatars.push(selectedPikminId);
+            // 同時替換為新皮克敏
+            student.pikmin = selectedPikminId;
+
+            if (!student.history) student.history = [];
+            student.history.unshift({
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                reason: `[老師特許贈送] 解鎖了 ${pikminInfo.icon} ${pikminInfo.name}`,
+                delta: 0,
+                pointsAfter: student.score
+            });
+
+            saveData();
+            renderAll();
+            openStudentHistoryModal(student.id);
+            showToast(`🎁 成功解鎖！已將 ${pikminInfo.name} 贈送給 ${student.name}！`, '🎉');
+        }
+
+        // 從圖鑑直接贈送給指定小孩
+        function teacherGiftFromDex(typeId) {
+            const cls = getCurrentClass();
+            if (!cls || cls.students.length === 0) {
+                alert('班級尚無學生！');
+                return;
+            }
+            const pikminInfo = PIKMIN_TYPES.find(p => p.id === typeId);
+            if (!pikminInfo) return;
+
+            const studentListText = cls.students.map(s => `${s.no}號 ${s.name}`).join('\n');
+            const inputVal = prompt(`請輸入要解鎖【${pikminInfo.name} ${pikminInfo.icon}】的學生座號或姓名：\n\n${studentListText}`);
+            if (!inputVal) return;
+
+            const student = cls.students.find(s => s.no == inputVal || s.name === inputVal.trim());
+            if (!student) {
+                alert('找不到該位隊員！請確認座號或姓名。');
+                return;
+            }
+
+            if (!student.unlockedAvatars) student.unlockedAvatars = ['red'];
+            if (student.unlockedAvatars.includes(typeId)) {
+                alert(`${student.name} 早就已經擁有【${pikminInfo.name}】囉！`);
+                return;
+            }
+
+            student.unlockedAvatars.push(typeId);
+            student.pikmin = typeId; // 自動裝備
+
+            if (!student.history) student.history = [];
+            student.history.unshift({
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                reason: `[老師特許贈送] 解鎖了 ${pikminInfo.icon} ${pikminInfo.name}`,
+                delta: 0,
+                pointsAfter: student.score
+            });
+
+            saveData();
+            renderAll();
+            showToast(`🎁 已由圖鑑特許贈送 ${pikminInfo.name} 給 ${student.name}！`, '🎉');
+        }
+
+        function openStudentHistoryModal(studentId) {
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            currentTargetStudentId = studentId;
+            document.getElementById('history-modal-title').innerText = `${student.name} 的探險履歷`;
+            document.getElementById('history-modal-subtitle').innerText = `座號: ${student.no} | 組別: 第 ${student.group || 1} 組 | 目前累積果實: ${student.score}`;
+            document.getElementById('history-modal-pikmin-icon').innerHTML = renderPikminSVG(student.pikmin, student.score, 40);
+
+            if (!student.unlockedAvatars) student.unlockedAvatars = ['red'];
+            document.getElementById('unlocked-count-badge').innerText = `已解鎖: ${student.unlockedAvatars.length} / 8 種`;
+
+            populateTeacherUnlockSelect(student);
+
+            const avatarContainer = document.getElementById('unlocked-avatars-selection');
+            avatarContainer.innerHTML = '';
+
+            PIKMIN_TYPES.forEach(p => {
+                const isUnlocked = student.unlockedAvatars.includes(p.id);
+                const isEquipped = student.pikmin === p.id;
+
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 border-2 transition-all ${
+                    isEquipped 
+                    ? 'bg-amber-500 text-amber-950 border-amber-600 shadow ring-2 ring-amber-300' 
+                    : isUnlocked 
+                    ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' 
+                    : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+                }`;
+                btn.disabled = !isUnlocked;
+                btn.onclick = () => equipStudentAvatar(student.id, p.id);
+                btn.innerHTML = `${p.icon} ${p.name} ${isEquipped ? '(佩戴中)' : ''}`;
+                avatarContainer.appendChild(btn);
+            });
+
+            const logsList = document.getElementById('history-logs-list');
+            logsList.innerHTML = '';
+
+            if (!student.history || student.history.length === 0) {
+                logsList.innerHTML = `<div class="text-center py-8 text-slate-500 font-bold text-xs">目前無果實異動紀錄</div>`;
+            } else {
+                student.history.forEach(log => {
+                    const isPlus = log.delta > 0;
+                    const isZero = log.delta === 0;
+                    const item = document.createElement('div');
+                    item.className = "bg-white p-3 rounded-2xl border border-slate-200 flex justify-between items-center shadow-sm";
+                    
+                    let badgeClass = "text-rose-700";
+                    let sign = "";
+                    if (isPlus) { badgeClass = "text-emerald-700"; sign = "+"; }
+                    else if (isZero) { badgeClass = "text-amber-700"; sign = ""; }
+
+                    item.innerHTML = `
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-sm ${badgeClass}">
+                                    ${sign}${log.delta} 果實
+                                </span>
+                                <span class="font-bold text-slate-800 text-xs">${log.reason}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 mt-0.5"><i class="fa-regular fa-clock mr-1"></i>${log.timestamp}</div>
+                        </div>
+                        <button onclick="undoScoreLog(${student.id}, ${log.id})" class="touch-btn bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 p-2 rounded-xl text-xs font-bold">
+                            <i class="fa-solid fa-trash-can"></i> 復原
+                        </button>
+                    `;
+                    logsList.appendChild(item);
+                });
+            }
+
+            document.getElementById('student-history-modal').classList.remove('hidden');
+        }
+
+        function equipStudentAvatar(studentId, pikminId) {
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === studentId);
+            if (student) {
+                student.pikmin = pikminId;
+                saveData();
+                renderAll();
+                openStudentHistoryModal(studentId);
+                showToast(`已更換 ${student.name} 的皮克敏造型！`);
+            }
+        }
+
+        function closeStudentHistoryModal() {
+            document.getElementById('student-history-modal').classList.add('hidden');
+        }
+
+        function undoScoreLog(studentId, logId) {
+            const cls = getCurrentClass();
+            const student = cls.students.find(s => s.id === studentId);
+            if (!student || !student.history) return;
+
+            const logIndex = student.history.findIndex(x => x.id === logId);
+            if (logIndex !== -1) {
+                const log = student.history[logIndex];
+                student.score = Math.max(0, student.score - log.delta);
+                student.history.splice(logIndex, 1);
+
+                saveData();
+                renderAll();
+                openStudentHistoryModal(studentId);
+                showToast("已成功復原紀錄！");
+            }
+        }
+
+        // ==========================================
+        // 🌟 新增功能 2：點名附上時間與日期
+        // ==========================================
+        let currentCheckMode = 'attendance';
+        let tempCheckState = [];
+
+        function setAttendanceToNow() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById('attendance-datetime-input').value = localISOTime;
+        }
+
+        function setAttendanceCheckMode(mode) {
+            currentCheckMode = mode;
+            document.getElementById('mode-btn-attendance').className = (mode === 'attendance') ? "px-3 py-1.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-amber-950" : "px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700";
+            document.getElementById('mode-btn-homework').className = (mode === 'homework') ? "px-3 py-1.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-amber-950" : "px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700";
+            renderAttendanceGrid();
+        }
+
+        function openAttendanceModal() {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            setAttendanceToNow();
+
+            const lastSavedInfo = document.getElementById('attendance-last-saved-time');
+            if (cls.lastAttendanceRecord) {
+                lastSavedInfo.innerText = `上次點名：${cls.lastAttendanceRecord.dateTime}`;
+            } else {
+                lastSavedInfo.innerText = '上次紀錄：尚無';
+            }
+
+            tempCheckState = cls.students.map(s => ({
+                id: s.id, 
+                no: s.no, 
+                name: s.name, 
+                status: s.status || '未到', 
+                hwStatus: s.hwStatus || '未繳交',
+                lastAttendanceTime: s.lastAttendanceTime || ''
+            }));
+
+            renderAttendanceGrid();
+            document.getElementById('attendance-modal').classList.remove('hidden');
+        }
+
+        function closeAttendanceModal() {
+            document.getElementById('attendance-modal').classList.add('hidden');
+        }
+
+        function toggleCheckStatus(studentId) {
+            const st = tempCheckState.find(x => x.id === studentId);
+            if (!st) return;
+
+            if (currentCheckMode === 'attendance') {
+                const cycle = ['未到', '出席', '請假', '遲到', '曠課'];
+                st.status = cycle[(cycle.indexOf(st.status) + 1) % cycle.length];
+            } else {
+                const cycle = ['已繳交', '未繳交', '需訂正', '缺交待補'];
+                st.hwStatus = cycle[(cycle.indexOf(st.hwStatus) + 1) % cycle.length];
+            }
+
+            renderAttendanceGrid();
+        }
+
+        function renderAttendanceGrid() {
+            const grid = document.getElementById('attendance-grid');
+            const batchActions = document.getElementById('attendance-batch-actions');
+            const summary = document.getElementById('attendance-summary');
+            grid.innerHTML = '';
+
+            if (currentCheckMode === 'attendance') {
+                batchActions.innerHTML = `
+                    <button onclick="setBatchState('status', '出席')" class="touch-btn bg-emerald-600 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow">全班出席 ✅</button>
+                    <button onclick="setBatchState('status', '未到')" class="touch-btn bg-slate-500 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow">重置未點 🔄</button>
+                `;
+
+                const presentCount = tempCheckState.filter(s => s.status === '出席').length;
+                const absentCount = tempCheckState.filter(s => s.status === '請假' || s.status === '曠課').length;
+                const lateCount = tempCheckState.filter(s => s.status === '遲到').length;
+                summary.innerHTML = `
+                    <span class="text-emerald-700">出席: ${presentCount}</span>
+                    <span class="text-amber-700">遲到: ${lateCount}</span>
+                    <span class="text-rose-700">缺席: ${absentCount}</span>
+                    <span class="text-slate-500">總數: ${tempCheckState.length}</span>
+                `;
+            } else {
+                batchActions.innerHTML = `
+                    <button onclick="setBatchState('hwStatus', '已繳交')" class="touch-btn bg-emerald-600 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow">全部已繳 ✅</button>
+                    <button onclick="setBatchState('hwStatus', '未繳交')" class="touch-btn bg-slate-500 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow">重置未繳 🔄</button>
+                `;
+
+                const doneCount = tempCheckState.filter(s => s.hwStatus === '已繳交').length;
+                const undoneCount = tempCheckState.filter(s => s.hwStatus === '未繳交' || s.hwStatus === '缺交待補').length;
+                const fixCount = tempCheckState.filter(s => s.hwStatus === '需訂正').length;
+                summary.innerHTML = `
+                    <span class="text-emerald-700">已繳: ${doneCount}</span>
+                    <span class="text-amber-700">訂正: ${fixCount}</span>
+                    <span class="text-rose-700">未繳: ${undoneCount}</span>
+                `;
+            }
+
+            tempCheckState.sort((a,b) => a.no - b.no).forEach(s => {
+                let btnStyle = "bg-white border-2 border-slate-300 text-slate-700 shadow";
+                let badgeText = "未設定";
+
+                if (currentCheckMode === 'attendance') {
+                    if (s.status === '出席') { btnStyle = "bg-emerald-600 text-white border-emerald-800 shadow-lg ring-2 ring-emerald-300"; badgeText = "✅ 出席"; }
+                    else if (s.status === '請假') { btnStyle = "bg-sky-500 text-white border-sky-700 shadow-lg ring-2 ring-sky-200"; badgeText = "🟦 請假"; }
+                    else if (s.status === '遲到') { btnStyle = "bg-amber-500 text-white border-amber-700 shadow-lg ring-2 ring-amber-200"; badgeText = "⏱️ 遲到"; }
+                    else if (s.status === '曠課') { btnStyle = "bg-rose-600 text-white border-rose-800 shadow-lg ring-2 ring-rose-300"; badgeText = "❌ 曠課"; }
+                    else { badgeText = "未點名"; }
+                } else {
+                    if (s.hwStatus === '已繳交') { btnStyle = "bg-emerald-600 text-white border-emerald-800 shadow-lg"; badgeText = "📚 已繳交"; }
+                    else if (s.hwStatus === '未繳交') { btnStyle = "bg-rose-500 text-white border-rose-700 shadow-lg"; badgeText = "⚠️ 未繳交"; }
+                    else if (s.hwStatus === '需訂正') { btnStyle = "bg-amber-500 text-white border-amber-700 shadow-lg"; badgeText = "✏️ 需訂正"; }
+                    else if (s.hwStatus === '缺交待補') { btnStyle = "bg-purple-600 text-white border-purple-800 shadow-lg"; badgeText = "🚨 缺交待補"; }
+                }
+
+                const btn = document.createElement('button');
+                btn.onclick = () => toggleCheckStatus(s.id);
+                btn.className = `touch-btn h-28 rounded-2xl p-3 flex flex-col justify-between items-center text-center transition-all ${btnStyle}`;
+                btn.innerHTML = `
+                    <div class="flex justify-between w-full text-xs font-bold opacity-90">
+                        <span>${s.no}號</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] bg-black/20">${badgeText}</span>
+                    </div>
+                    <div class="text-2xl font-black my-auto tracking-wide">${s.name}</div>
+                    <div class="text-[9px] opacity-75 truncate w-full">${s.lastAttendanceTime ? s.lastAttendanceTime.slice(5) : ''}</div>
+                `;
+                grid.appendChild(btn);
+            });
+        }
+
+        function setBatchState(key, val) {
+            tempCheckState.forEach(s => s[key] = val);
+            renderAttendanceGrid();
+        }
+
+        function saveAttendance() {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            const rawDateTime = document.getElementById('attendance-datetime-input').value;
+            let formattedDateTime = '';
+            if (rawDateTime) {
+                const d = new Date(rawDateTime);
+                formattedDateTime = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            } else {
+                formattedDateTime = new Date().toLocaleString();
+            }
+
+            tempCheckState.forEach(st => {
+                const target = cls.students.find(x => x.id === st.id);
+                if (target) {
+                    target.status = st.status;
+                    target.hwStatus = st.hwStatus;
+                    target.lastAttendanceTime = formattedDateTime;
+                }
+            });
+
+            // 統計
+            const present = tempCheckState.filter(s => s.status === '出席').length;
+            const total = tempCheckState.length;
+            cls.lastAttendanceRecord = {
+                dateTime: formattedDateTime,
+                summary: `出席 ${present}/${total} 人`
+            };
+
+            saveData();
+            renderAll();
+            closeAttendanceModal();
+            showToast(`📅 點名結果已儲存！記錄時間：${formattedDateTime}`);
+        }
+
+        // ==========================================
+        // 🌟 新增功能 3：自動雲端儲存與防呆模式
+        // ==========================================
+        function toggleAutoCloudSave(enabled) {
+            appState.autoCloudSave = enabled;
+            localStorage.setItem('pikmin_auto_cloud', enabled);
+            if (enabled && !appState.gasUrl) {
+                alert('提示：您已開啟自動雲端儲存，請記得在下方填寫 GAS Web App 部署網址！');
+            }
+            saveData(false);
+            showToast(enabled ? "☁️ 已啟用自動雲端同步模式" : "已關閉自動雲端同步");
+        }
+
+        function toggleFoolproofMode(enabled) {
+            appState.foolproofMode = enabled;
+            localStorage.setItem('pikmin_foolproof', enabled);
+            showToast(enabled ? "🛡️ 已啟用防呆模式保護" : "已關閉防呆快照");
+        }
+
+        function openSettingsModal(targetTab = null) {
+            document.getElementById('gas-url-input').value = appState.gasUrl || '';
+            document.getElementById('auto-cloud-save-toggle').checked = appState.autoCloudSave;
+            document.getElementById('foolproof-mode-toggle').checked = appState.foolproofMode;
+            renderReasonsSettings();
+            renderClassesSettings();
+            updateSnapshotInfoUI();
+
+            if (targetTab) {
+                switchSettingsTab(targetTab);
+            }
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function switchSettingsTab(tabName) {
+            ['reasons', 'classes', 'backup', 'cloud'].forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).className = "px-4 py-2 rounded-xl transition-all text-slate-600 hover:bg-slate-200";
+            });
+
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2 rounded-xl transition-all bg-slate-700 text-amber-300 shadow";
+        }
+
+        function renderReasonsSettings() {
+            const container = document.getElementById('reasons-list-container');
+            container.innerHTML = '';
+
+            appState.reasons.forEach((r, idx) => {
+                const isPlus = r.type === 'plus';
+                const row = document.createElement('div');
+                row.className = "bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap justify-between items-center shadow-sm gap-2";
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-xs px-2.5 py-1 rounded-xl ${isPlus ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${isPlus ? '+加分' : '-扣分'} ${r.points} 果實
+                        </span>
+                        <span class="font-bold text-slate-800 text-sm">${r.title}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <button onclick="moveReason(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="touch-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold disabled:opacity-30">▲ 向上</button>
+                        <button onclick="moveReason(${idx}, 1)" ${idx === appState.reasons.length - 1 ? 'disabled' : ''} class="touch-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold disabled:opacity-30">▼ 向下</button>
+                        <button onclick="deleteReason(${r.id})" class="touch-btn bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-bold">🗑️ 刪除</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function moveReason(index, direction) {
+            const targetIdx = index + direction;
+            if (targetIdx < 0 || targetIdx >= appState.reasons.length) return;
+            const temp = appState.reasons[index];
+            appState.reasons[index] = appState.reasons[targetIdx];
+            appState.reasons[targetIdx] = temp;
+            saveData();
+            renderReasonsSettings();
+        }
+
+        function deleteReason(id) {
+            if (confirm('確定要刪除此事由嗎？')) {
+                appState.reasons = appState.reasons.filter(x => x.id !== id);
+                saveData();
+                renderReasonsSettings();
+            }
+        }
+
+        function openAddReasonModal() { document.getElementById('add-reason-modal').classList.remove('hidden'); }
+        function closeAddReasonModal() { document.getElementById('add-reason-modal').classList.add('hidden'); }
+
+        function addNewReason() {
+            const type = document.getElementById('new-reason-type').value;
+            const title = document.getElementById('new-reason-title').value.trim();
+            const points = parseInt(document.getElementById('new-reason-points').value);
+
+            if (!title || !points) { alert('請完整填寫名稱與果實數量！'); return; }
+
+            appState.reasons.push({ id: Date.now(), type, title, points });
+            saveData();
+            renderReasonsSettings();
+            closeAddReasonModal();
+            showToast("成功新增加減分細項！");
+        }
+
+        function renderClassesSettings() {
+            const list = document.getElementById('settings-classes-list');
+            list.innerHTML = '';
+
+            Object.keys(appState.classes).forEach(cId => {
+                const cls = appState.classes[cId];
+                const badge = document.createElement('div');
+                badge.className = `px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 ${cId === appState.currentClassId ? 'bg-amber-500 text-amber-950 shadow' : 'bg-stone-200 text-stone-700'}`;
+                badge.innerHTML = `
+                    <span>${cls.name}</span>
+                    <button onclick="deleteClass('${cId}')" class="text-rose-700 hover:text-rose-900">&times;</button>
+                `;
+                list.appendChild(badge);
+            });
+
+            const tbody = document.getElementById('settings-students-tbody');
+            tbody.innerHTML = '';
+            const cls = getCurrentClass();
+            if (cls) {
+                cls.students.sort((a,b) => a.no - b.no).forEach(st => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-stone-200 hover:bg-stone-100";
+                    tr.innerHTML = `
+                        <td class="p-2 font-bold">${st.no}</td>
+                        <td class="p-2 font-black text-slate-800">${st.name}</td>
+                        <td class="p-2 font-bold">
+                            <button onclick="changeStudentGroupPrompt(${st.id})" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-lg text-xs">
+                                第 ${st.group || 1} 組 ✏️
+                            </button>
+                        </td>
+                        <td class="p-2 font-bold text-amber-600">${st.score} 🍓</td>
+                        <td class="p-2">
+                            <span class="font-bold">${st.pikmin}</span>
+                            <button onclick="quickTeacherUnlock(${st.id})" class="ml-1 text-xs text-amber-700 hover:underline">贈送解鎖</button>
+                        </td>
+                        <td class="p-2 text-slate-500 font-mono text-[11px]">
+                            ${st.lastAttendanceTime ? `${st.lastAttendanceTime} (${st.status}/${st.hwStatus})` : '尚未登記'}
+                        </td>
+                        <td class="p-2 text-right">
+                            <button onclick="deleteStudent(${st.id})" class="text-rose-600 font-bold hover:underline">刪除</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function addNewClassPrompt() {
+            const name = prompt('請輸入新班級名稱 (例如: 五年三班)');
+            if (name) {
+                const newId = 'class_' + Date.now();
+                appState.classes[newId] = {
+                    name: name,
+                    homeworkText: '1. 請填寫今日作業事項',
+                    announcementText: '歡迎來到新班級！',
+                    mottoText: '「齊心協力，勇敢探索！」',
+                    lastAttendanceRecord: null,
+                    rewards: [
+                        { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
+                        { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
+                        { id: 'r3', name: "當一日小幫手", cost: 30, icon: "🍌", stock: -1 }
+                    ],
+                    students: []
+                };
+                appState.currentClassId = newId;
+                saveData();
+                renderAll();
+                renderClassesSettings();
+                showToast(`已成功建立新班級：${name}`);
+            }
+        }
+
+        function deleteClass(cId) {
+            if (Object.keys(appState.classes).length <= 1) {
+                alert('最少需要保留一個班級！');
+                return;
+            }
+            if (confirm(`【防呆確認】確定要刪除「${appState.classes[cId].name}」嗎？該班級所有隊員資料將被移除！`)) {
+                delete appState.classes[cId];
+                appState.currentClassId = Object.keys(appState.classes)[0];
+                saveData();
+                renderAll();
+                renderClassesSettings();
+                showToast('已刪除該班級');
+            }
+        }
+
+        function deleteStudent(stId) {
+            const cls = getCurrentClass();
+            if (!cls) return;
+            if (confirm('【防呆確認】確定要刪除該位隊員嗎？其歷史紀錄與果實也將同步移除。')) {
+                cls.students = cls.students.filter(s => s.id !== stId);
+                saveData();
+                renderAll();
+                renderClassesSettings();
+                showToast('已刪除該隊員');
+            }
+        }
+
+        function openAddStudentModal() { document.getElementById('add-student-modal').classList.remove('hidden'); }
+        function closeAddStudentModal() { document.getElementById('add-student-modal').classList.add('hidden'); }
+        
+        function addNewStudent() {
+            const no = parseInt(document.getElementById('new-student-no').value, 10);
+            const name = document.getElementById('new-student-name').value.trim();
+            const group = parseInt(document.getElementById('new-student-group').value, 10) || 1;
+
+            if (!no || !name) { alert('請填寫座號與姓名！'); return; }
+
+            const cls = getCurrentClass();
+            if (cls) {
+                cls.students.push({
+                    id: Date.now(),
+                    no: no,
+                    name: name,
+                    group: group,
+                    score: 0,
+                    pikmin: 'red',
+                    unlockedAvatars: ['red'],
+                    status: '未點名',
+                    hwStatus: '未繳交',
+                    lastAttendanceTime: '',
+                    history: []
+                });
+                saveData();
+                renderAll();
+                renderClassesSettings();
+                closeAddStudentModal();
+                document.getElementById('new-student-no').value = '';
+                document.getElementById('new-student-name').value = '';
+                showToast(`已新增隊員：${name}`);
+            }
+        }
+
+        function openBatchAddStudentModal() { document.getElementById('batch-add-student-modal').classList.remove('hidden'); }
+        function closeBatchAddStudentModal() { document.getElementById('batch-add-student-modal').classList.add('hidden'); }
+        
+        function processBatchAddStudents() {
+            const text = document.getElementById('batch-students-input').value.trim();
+            if (!text) { alert('請輸入或貼上學生名單！'); return; }
+
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            let maxNo = cls.students.reduce((max, s) => Math.max(max, s.no || 0), 0);
+            let count = 0;
+
+            lines.forEach(line => {
+                const parts = line.split(/\s+/);
+                let no, name;
+                if (parts.length >= 2 && !isNaN(parseInt(parts[0], 10))) {
+                    no = parseInt(parts[0], 10);
+                    name = parts.slice(1).join(' ');
+                } else {
+                    maxNo++;
+                    no = maxNo;
+                    name = line;
+                }
+
+                cls.students.push({
+                    id: Date.now() + Math.random(),
+                    no: no,
+                    name: name,
+                    group: 1,
+                    score: 0,
+                    pikmin: 'red',
+                    unlockedAvatars: ['red'],
+                    status: '未點名',
+                    hwStatus: '未繳交',
+                    lastAttendanceTime: '',
+                    history: []
+                });
+                count++;
+            });
+
+            saveData();
+            renderAll();
+            renderClassesSettings();
+            closeBatchAddStudentModal();
+            document.getElementById('batch-students-input').value = '';
+            showToast(`成功批次新增 ${count} 位隊員！`);
+        }
+
+        function editBoardItem(type) {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            let title = '';
+            let currentVal = '';
+            if (type === 'homework') { title = '今日作業事項'; currentVal = cls.homeworkText || ''; }
+            else if (type === 'announcement') { title = '班級重要公告'; currentVal = cls.announcementText || ''; }
+            else if (type === 'motto') { title = '今日探險口號'; currentVal = cls.mottoText || ''; }
+
+            const newVal = prompt(`修改【${title}】:`, currentVal);
+            if (newVal !== null) {
+                if (type === 'homework') cls.homeworkText = newVal;
+                else if (type === 'announcement') cls.announcementText = newVal;
+                else if (type === 'motto') cls.mottoText = newVal;
+
+                saveData();
+                renderBlackboard();
+                showToast(`已更新${title}`);
+            }
+        }
+
+        let fsClockTimer = null;
+        function toggleFullScreenBlackboard() {
+            const modal = document.getElementById('fullscreen-blackboard-modal');
+            const cls = getCurrentClass();
+
+            if (modal.classList.contains('hidden')) {
+                document.getElementById('fs-class-title').innerText = `${cls ? cls.name : ''} - 探險黑板`;
+                document.getElementById('fs-homework').innerText = cls ? (cls.homeworkText || '無') : '';
+                document.getElementById('fs-announcement').innerText = cls ? (cls.announcementText || '無') : '';
+                document.getElementById('fs-motto').innerText = cls ? (cls.mottoText || '') : '';
+
+                const updateClock = () => {
+                    const now = new Date();
+                    document.getElementById('fs-clock-time').innerText = now.toLocaleTimeString();
+                    document.getElementById('fs-clock-date').innerText = now.toLocaleDateString();
+                };
+                updateClock();
+                fsClockTimer = setInterval(updateClock, 1000);
+
+                modal.classList.remove('hidden');
+            } else {
+                if (fsClockTimer) clearInterval(fsClockTimer);
+                modal.classList.add('hidden');
+            }
+        }
+
+        function openRandomModal() {
+            document.getElementById('random-display').innerText = "點擊開始抽取！";
+            document.getElementById('random-modal').classList.remove('hidden');
+        }
+        function closeRandomModal() {
+            document.getElementById('random-modal').classList.add('hidden');
+        }
+        let isRandoming = false;
+        function startRandomPick() {
+            const cls = getCurrentClass();
+            if (!cls || cls.students.length === 0) { alert('沒有可抽取的學生！'); return; }
+            if (isRandoming) return;
+
+            isRandoming = true;
+            const display = document.getElementById('random-display');
+            let counter = 0;
+            const totalTicks = 20;
+
+            const timer = setInterval(() => {
+                const randSt = cls.students[Math.floor(Math.random() * cls.students.length)];
+                display.innerText = `${randSt.no} 號 ${randSt.name}`;
+                counter++;
+
+                if (counter >= totalTicks) {
+                    clearInterval(timer);
+                    isRandoming = false;
+                    display.innerText = `🎉 幸運兒：${randSt.no} 號 ${randSt.name}`;
+                }
+            }, 80);
+        }
+
+        function openPikminDexModal() {
+            renderPikminDex();
+            document.getElementById('pikmin-dex-modal').classList.remove('hidden');
+        }
+        function closePikminDexModal() {
+            document.getElementById('pikmin-dex-modal').classList.add('hidden');
+        }
+        function renderPikminDex() {
+            const grid = document.getElementById('pikmin-dex-grid');
+            grid.innerHTML = '';
+
+            PIKMIN_TYPES.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl border-2 border-lime-300 shadow flex flex-col justify-between items-center text-center";
+                card.innerHTML = `
+                    <div>
+                        <div class="mb-2 p-2 bg-lime-50 rounded-2xl border border-lime-200 flex items-center justify-center">
+                            ${renderPikminSVG(p.id, 100, 80)}
+                        </div>
+                        <h4 class="font-black text-slate-800 text-base mb-1">${p.icon} ${p.name}</h4>
+                        <p class="text-xs text-slate-500 font-medium leading-relaxed">${p.desc}</p>
+                    </div>
+                    <div class="mt-3 w-full pt-2 border-t border-slate-100">
+                        <button onclick="teacherGiftFromDex('${p.id}')" class="touch-btn w-full bg-amber-500 hover:bg-amber-400 text-amber-950 font-black text-xs py-2 px-3 rounded-xl shadow border-b-2 border-amber-700 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>贈送此品種給隊員</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `pikmin_classroom_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("已下載 JSON 備份檔！");
+        }
+
+        function importDataJSON() {
+            const fileInput = document.getElementById('import-json-file');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('請先選擇要匯入的 JSON 檔案！');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.classes) appState.classes = data.classes;
+                    if (data.reasons) appState.reasons = data.reasons;
+                    saveData();
+                    renderAll();
+                    showToast("備份資料成功匯入！");
+                    closeSettingsModal();
+                } catch (err) {
+                    alert('格式錯誤，無法載入 JSON 檔！');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetDataToDefault() {
+            if (confirm("【防呆警報】警告：這將會清除目前所有班級、點名與學生資料，恢復為預設範例！確定執行嗎？")) {
+                if (prompt("請輸入「RESET」確認完全重置：") === "RESET") {
+                    localStorage.removeItem('pikmin_app_data_v3');
+                    location.reload();
+                } else {
+                    alert('已取消重置操作。');
+                }
+            }
+        }
+
+        function saveGasSetting() {
+            const url = document.getElementById('gas-url-input').value.trim();
+            appState.gasUrl = url;
+            localStorage.setItem('pikmin_gas_url', url);
+            updateCloudBadgeUI(url ? 'synced' : 'local');
+            showToast("GAS 雲端網址已儲存！");
+        }
+
+        async function loadDataFromCloudWithConfirm() {
+            if (!confirm('【防呆提示】從雲端載入將會覆蓋當前瀏覽器中的本地資料！是否確定載入？（系統已為您自動備份快照）')) {
+                return;
+            }
+            loadDataFromCloud();
+        }
+
+        async function loadDataFromCloud() {
+            if (!appState.gasUrl) { alert('請先設定 GAS Web App URL！'); return; }
+            try {
+                showToast("雲端資料載入中...", "⏳");
+                updateCloudBadgeUI('syncing');
+                const res = await fetch(appState.gasUrl + '?action=get');
+                const data = await res.json();
+                if (data && data.classes) {
+                    appState.classes = data.classes;
+                    if (data.reasons) appState.reasons = data.reasons;
+                    saveData(false); // 載入後存到本地
+                    renderAll();
+                    updateCloudBadgeUI('synced');
+                    showToast("☁️ 已成功從雲端同步最新的資料！", "✅");
+                } else {
+                    updateCloudBadgeUI('error');
+                    alert('從雲端讀取資料失敗，格式不符或沒有資料。');
+                }
+            } catch (err) {
+                console.error(err);
+                updateCloudBadgeUI('error');
+                alert('串接雲端失敗，請確認 GAS URL 是否正確及權限是否開放！');
+            }
+        }
+
+        async function saveDataToCloud(showManualAlert = false) {
+            if (!appState.gasUrl) { 
+                if (showManualAlert) alert('請先設定 GAS Web App URL！'); 
+                return; 
+            }
+            try {
+                updateCloudBadgeUI('syncing');
+                const payload = {
+                    classes: appState.classes,
+                    reasons: appState.reasons,
+                    lastSyncTime: new Date().toLocaleString()
+                };
+                const res = await fetch(appState.gasUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    updateCloudBadgeUI('synced');
+                    if (showManualAlert) showToast("☁️ 已成功手動同步備份至雲端！", "✅");
+                } else {
+                    updateCloudBadgeUI('error');
+                    if (showManualAlert) alert('雲端儲存失敗：' + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                updateCloudBadgeUI('error');
+                if (showManualAlert) alert('上傳至雲端失敗，請確認網路或 GAS 設定！本地資料已完好保存。');
+            }
+        }
+
+        window.onload = function() {
+            renderAll();
+        };
+    </script>
+</body>
+</html>
