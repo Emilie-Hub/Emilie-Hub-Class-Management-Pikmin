@@ -6,7 +6,7 @@
     <title>皮克敏班級探險經營、大屏點名與頭像收集系統</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome 圖示 -->
+    <!-- FontAwesome 圖示庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
@@ -176,7 +176,7 @@
                     <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-200">皮克敏班級探險與大屏點名系統</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-xs text-nature-200">大地綠意配色 • 高清皮克敏頭像圖鑑 • 分組競賽與果實加分</p>
-                        <!-- 雲端儲存狀態指示燈 -->
+                        <!-- 雲端狀態指示燈 -->
                         <span id="cloud-status-badge" onclick="openSettingsModal('cloud')" class="cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 hover:bg-emerald-900 transition-all flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span id="cloud-status-text">本地已儲存</span>
@@ -223,7 +223,6 @@
         </div>
     </header>
 
-    <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 mt-6">
         
         <!-- 大黑板公告區域 -->
@@ -257,34 +256,46 @@
                 </div>
             </div>
 
-            <!-- 黑板告示區域 -->
+            <!-- 黑板告示區域 (支援長篇多行文字與內部平滑滾動) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-emerald-100 mb-4">
-                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-amber-300 text-sm"><i class="fa-solid fa-pen-ruler mr-1"></i> 今日作業事項</span>
-                        <button onclick="editBoardItem('homework')" class="text-xs text-emerald-400 hover:underline">編輯</button>
+                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-amber-300 text-sm"><i class="fa-solid fa-pen-ruler mr-1"></i> 今日作業事項</span>
+                            <button onclick="openBoardEditorModal('homework')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯內容</button>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto pr-1">
+                            <p id="board-homework" class="text-sm font-medium whitespace-pre-wrap break-words leading-relaxed">1. 數學隨堂測驗本 p.20-21&#10;2. 國語單元六生字造詞</p>
+                        </div>
                     </div>
-                    <p id="board-homework" class="text-sm font-medium whitespace-pre-wrap">1. 數學隨堂測驗本 p.20-21&#10;2. 國語單元六生字造詞</p>
                 </div>
 
-                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-lime-300 text-sm"><i class="fa-solid fa-bullhorn mr-1"></i> 班級重要公告</span>
-                        <button onclick="editBoardItem('announcement')" class="text-xs text-emerald-400 hover:underline">編輯</button>
+                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-lime-300 text-sm"><i class="fa-solid fa-bullhorn mr-1"></i> 班級重要公告</span>
+                            <button onclick="openBoardEditorModal('announcement')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯內容</button>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto pr-1">
+                            <p id="board-announcement" class="text-sm font-medium whitespace-pre-wrap break-words leading-relaxed">明天下午為戶外生態觀察，請著運動服並攜帶水壺！</p>
+                        </div>
                     </div>
-                    <p id="board-announcement" class="text-sm font-medium whitespace-pre-wrap">明天下午為戶外生態觀察，請著運動服並攜帶水壺！</p>
                 </div>
 
-                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-amber-200 text-sm"><i class="fa-solid fa-quote-left mr-1"></i> 今日探險口號</span>
-                        <button onclick="editBoardItem('motto')" class="text-xs text-emerald-400 hover:underline">編輯</button>
+                <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-amber-200 text-sm"><i class="fa-solid fa-quote-left mr-1"></i> 今日探險口號</span>
+                            <button onclick="openBoardEditorModal('motto')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯內容</button>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto pr-1 flex items-center">
+                            <p id="board-motto" class="text-sm font-bold text-amber-200 italic whitespace-pre-wrap break-words leading-relaxed">「團結合作，齊心收集探險果實！」</p>
+                        </div>
                     </div>
-                    <p id="board-motto" class="text-sm font-bold text-amber-200 italic">「團結合作，齊心收集探險果實！」</p>
                 </div>
             </div>
 
-            <!-- 探險小隊里程碑 -->
+            <!-- 探險里程碑 -->
             <div>
                 <div class="flex justify-between text-xs text-emerald-200 font-bold mb-1">
                     <span>🌱 探險里程碑進度 (每 100 果實解鎖新地標)</span>
@@ -296,7 +307,7 @@
             </div>
         </div>
 
-        <!-- 學生隊員列表標題與視角切換 -->
+        <!-- 隊員名冊標題與視角切換 -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
             <h3 class="text-xl font-black text-nature-800 flex items-center gap-2">
                 <i class="fa-solid fa-users-viewfinder text-nature-600"></i>
@@ -395,7 +406,7 @@
         </div>
     </div>
 
-    <!-- Modal 2. 學生個人歷程與頭像切換 (含老師特許解鎖功能) -->
+    <!-- Modal 2. 學生個人歷程與頭像切換 (含老師特許解鎖新品種) -->
     <div id="student-history-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
             <div class="bg-nature-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
@@ -419,12 +430,12 @@
                     <div id="unlocked-avatars-selection" class="flex flex-wrap gap-2"></div>
                 </div>
 
-                <!-- 🌟 新功能：老師專屬特許解鎖新品種給指定隊員 -->
+                <!-- 老師專屬特許解鎖新品種 -->
                 <div class="bg-gradient-to-r from-amber-50 to-lime-50 p-3.5 rounded-2xl border-2 border-amber-300 shadow-sm">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="font-black text-amber-950 text-xs flex items-center gap-1.5">
                             <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
-                            <span>老師專屬特許：直接贈送 / 解鎖新品種給此隊員</span>
+                            <span>老師專屬特許：直接解鎖 / 贈送新品種給此隊員</span>
                         </h4>
                         <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">免消耗果實</span>
                     </div>
@@ -438,7 +449,7 @@
                     </div>
                 </div>
 
-                <!-- 歷程記錄 -->
+                <!-- 歷程記錄清單 -->
                 <div>
                     <h4 class="font-bold text-slate-700 text-sm mb-2 flex items-center justify-between">
                         <span>📜 探險果實與出缺席歷程</span>
@@ -465,14 +476,13 @@
                     <p class="text-xs text-nature-200">單擊切換點名狀態 / 切換模式登記今日作業繳交</p>
                 </div>
                 
-                <!-- 模式切換 -->
                 <div class="flex items-center gap-2 bg-nature-950/60 p-1.5 rounded-2xl border border-nature-600">
                     <button id="mode-btn-attendance" onclick="setAttendanceCheckMode('attendance')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-amber-950">📋 每日點名</button>
                     <button id="mode-btn-homework" onclick="setAttendanceCheckMode('homework')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700">📚 作業檢查</button>
                 </div>
             </div>
 
-            <!-- 🌟 新功能：點名登記附上時間與日期選擇器 -->
+            <!-- 點名登記附上時間與日期選擇器 -->
             <div class="bg-amber-100/90 border-b border-amber-300 p-3 flex flex-wrap justify-between items-center gap-3">
                 <div class="flex items-center gap-2 text-xs font-black text-amber-950">
                     <i class="fa-solid fa-calendar-day text-amber-700 text-sm"></i>
@@ -502,7 +512,7 @@
         </div>
     </div>
 
-    <!-- Modal 4. 系統設定 (含自動雲端防呆設定與快照備份) -->
+    <!-- Modal 4. 系統設定 (含自動雲端防呆與快照) -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5">
         <div class="bg-white rounded-3xl shadow-2xl border-4 border-slate-700 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
             <div class="bg-slate-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
@@ -597,13 +607,12 @@
                 </div>
             </div>
 
-            <!-- 子頁籤 4: 🌟 自動雲端 GAS 同步與防呆模式 -->
+            <!-- 子頁籤 4: 雲端 GAS 同步與防呆模式 -->
             <div id="tab-content-cloud" class="p-5 overflow-y-auto flex-1 space-y-4 hidden">
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-300 space-y-4">
                     <div>
                         <h4 class="font-black text-slate-800 text-sm flex items-center gap-2">
                             <span>☁️ Google Apps Script (GAS) Web App 雲端自動同步</span>
-                            <span id="cloud-test-status" class="text-xs font-bold text-emerald-600"></span>
                         </h4>
                         <p class="text-xs text-slate-500 mt-1">貼上您的 GAS Web App 部署 URL，系統將啟用「自動雲端防呆保存機制」。</p>
                     </div>
@@ -781,7 +790,7 @@
             <div class="flex items-center gap-6">
                 <div class="text-right">
                     <div id="fs-clock-time" class="text-3xl font-black text-amber-300 font-mono">12:00:00</div>
-                    <div id="fs-clock-date" class="text-xs text-emerald-300">2026/09/05</div>
+                    <div id="fs-clock-date" class="text-xs text-emerald-300">2026/09/15</div>
                 </div>
                 <button onclick="toggleFullScreenBlackboard()" class="touch-btn bg-amber-500 text-amber-950 font-black px-5 py-2.5 rounded-2xl text-base shadow border-2 border-amber-300">❌ 離開全屏</button>
             </div>
@@ -789,16 +798,31 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 mb-6">
             <div class="bg-emerald-950/70 p-6 rounded-2xl border-2 border-emerald-800 flex flex-col">
-                <h3 class="text-xl font-black text-amber-300 mb-3"><i class="fa-solid fa-pen-ruler mr-2"></i> 今日作業事項</h3>
-                <p id="fs-homework" class="text-xl font-bold text-white leading-relaxed whitespace-pre-wrap flex-1"></p>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xl font-black text-amber-300"><i class="fa-solid fa-pen-ruler mr-2"></i> 今日作業事項</h3>
+                    <button onclick="openBoardEditorModal('homework')" class="touch-btn text-xs font-bold text-amber-200 bg-emerald-900/90 hover:bg-emerald-800 px-3 py-1 rounded-xl border border-amber-400">✏️ 編輯</button>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2 max-h-[62vh]">
+                    <p id="fs-homework" class="text-xl font-bold text-white leading-relaxed whitespace-pre-wrap break-words"></p>
+                </div>
             </div>
             <div class="bg-emerald-950/70 p-6 rounded-2xl border-2 border-emerald-800 flex flex-col">
-                <h3 class="text-xl font-black text-lime-300 mb-3"><i class="fa-solid fa-bullhorn mr-2"></i> 班級重要公告</h3>
-                <p id="fs-announcement" class="text-xl font-bold text-white leading-relaxed whitespace-pre-wrap flex-1"></p>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xl font-black text-lime-300"><i class="fa-solid fa-bullhorn mr-2"></i> 班級重要公告</h3>
+                    <button onclick="openBoardEditorModal('announcement')" class="touch-btn text-xs font-bold text-lime-200 bg-emerald-900/90 hover:bg-emerald-800 px-3 py-1 rounded-xl border border-lime-400">✏️ 編輯</button>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2 max-h-[62vh]">
+                    <p id="fs-announcement" class="text-xl font-bold text-white leading-relaxed whitespace-pre-wrap break-words"></p>
+                </div>
             </div>
             <div class="bg-emerald-950/70 p-6 rounded-2xl border-2 border-emerald-800 flex flex-col">
-                <h3 class="text-xl font-black text-amber-200 mb-3"><i class="fa-solid fa-quote-left mr-2"></i> 今日探險口號</h3>
-                <p id="fs-motto" class="text-2xl font-black text-amber-200 italic leading-relaxed my-auto text-center"></p>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xl font-black text-amber-200"><i class="fa-solid fa-quote-left mr-2"></i> 今日探險口號</h3>
+                    <button onclick="openBoardEditorModal('motto')" class="touch-btn text-xs font-bold text-amber-200 bg-emerald-900/90 hover:bg-emerald-800 px-3 py-1 rounded-xl border border-amber-300">✏️ 編輯</button>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2 max-h-[62vh] flex items-center justify-center">
+                    <p id="fs-motto" class="text-2xl font-black text-amber-200 italic leading-relaxed text-center whitespace-pre-wrap break-words"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -892,7 +916,52 @@
         </div>
     </div>
 
-    <!-- JavaScript 核心邏輯 -->
+    <!-- Modal 12. 黑板內容多行專用編輯器 (作業事項 / 班級公告 / 探險口號) -->
+    <div id="board-editor-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-[70] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-nature-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
+                <div class="flex items-center gap-2">
+                    <span id="board-editor-icon" class="text-2xl">📝</span>
+                    <div>
+                        <h3 class="text-xl font-black text-amber-200" id="board-editor-title">編輯黑板項目</h3>
+                        <p class="text-xs text-nature-200">支援鍵盤 Enter 自由換行與填入大量詳細文字</p>
+                    </div>
+                </div>
+                <button onclick="closeBoardEditorModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <div class="p-5 bg-nature-50 space-y-4 flex-1 flex flex-col">
+                <input type="hidden" id="board-editor-target-type" value="">
+                
+                <!-- 快捷文字工具 -->
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span class="font-bold text-slate-600">快捷文字小幫手：</span>
+                    <div class="flex flex-wrap gap-1.5" id="board-editor-quick-tags">
+                        <button type="button" onclick="insertQuickBoardText('• ')" class="bg-white hover:bg-slate-100 border border-slate-300 px-2 py-1 rounded-lg text-slate-700 font-bold">+ 項目符號 (•)</button>
+                        <button type="button" onclick="insertQuickBoardText('【請注意】')" class="bg-amber-100 hover:bg-amber-200 border border-amber-300 px-2 py-1 rounded-lg text-amber-900 font-bold">+ 【請注意】</button>
+                        <button type="button" onclick="insertQuickBoardText('明日攜帶：')" class="bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 px-2 py-1 rounded-lg text-emerald-900 font-bold">+ 明日攜帶：</button>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col">
+                    <label for="board-editor-textarea" class="text-xs font-black text-slate-700 mb-1 flex justify-between">
+                        <span>內容輸入區：</span>
+                        <span id="board-editor-char-count" class="text-slate-400 font-normal font-mono">0 字</span>
+                    </label>
+                    <textarea id="board-editor-textarea" rows="10" oninput="updateBoardCharCount()" placeholder="請在此輸入詳細內容，可自由換行..." class="w-full p-4 border-2 border-nature-400 rounded-2xl text-base font-medium text-slate-800 leading-relaxed focus:outline-none focus:ring-4 focus:ring-amber-300 shadow-inner resize-y flex-1"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-stone-100 p-4 border-t border-stone-200 flex justify-end gap-2">
+                <button onclick="closeBoardEditorModal()" class="touch-btn bg-slate-400 hover:bg-slate-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm">取消</button>
+                <button onclick="saveBoardEditorContent()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2.5 rounded-xl text-sm shadow border-b-2 border-emerald-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>儲存並更新黑板</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const PIKMIN_TYPES = [
             { id: 'red', name: '紅皮克敏', color: '#ef4444', icon: '🔴', cost: 0, desc: '勇敢不怕火，尖鼻子戰鬥力強！預設開放。' },
@@ -1002,7 +1071,6 @@
             }
         };
 
-        // 讀取本地資料
         const localSaved = localStorage.getItem('pikmin_app_data_v3');
         if (localSaved) {
             try {
@@ -1014,103 +1082,90 @@
             }
         }
 
-        // 建立防呆自動安全快照 (Snapshot)
-        function makeFoolproofSnapshot() {
+        // 防呆快照機制
+        function createSnapshot() {
+            if (!appState.foolproofMode) return;
+            const snapshotData = {
+                timestamp: new Date().toLocaleString(),
+                classes: appState.classes,
+                reasons: appState.reasons
+            };
+            localStorage.setItem('pikmin_safety_snapshot', JSON.stringify(snapshotData));
+            updateSnapshotInfoUI();
+        }
+
+        function restoreFromSnapshot() {
+            const raw = localStorage.getItem('pikmin_safety_snapshot');
+            if (!raw) {
+                alert('目前沒有可還原的安全快照！');
+                return;
+            }
             try {
-                const snapshotPayload = {
-                    time: new Date().toLocaleString(),
-                    data: {
-                        classes: appState.classes,
-                        reasons: appState.reasons
-                    }
-                };
-                localStorage.setItem('pikmin_foolproof_snapshot', JSON.stringify(snapshotPayload));
-                updateSnapshotInfoUI();
-            } catch(e) {
-                console.warn("快照儲存失敗", e);
+                const snapshot = JSON.parse(raw);
+                if (confirm(`確定要還原至快照版本嗎？\n快照建立時間：${snapshot.timestamp}`)) {
+                    appState.classes = snapshot.classes;
+                    appState.reasons = snapshot.reasons;
+                    saveData(false);
+                    renderAll();
+                    showToast('🛡️ 已成功還原防呆快照資料！', '✅');
+                }
+            } catch (err) {
+                alert('讀取快照失敗！');
             }
         }
 
         function updateSnapshotInfoUI() {
-            const el = document.getElementById('snapshot-time-info');
-            if (!el) return;
-            const saved = localStorage.getItem('pikmin_foolproof_snapshot');
-            if (saved) {
+            const raw = localStorage.getItem('pikmin_safety_snapshot');
+            const infoEl = document.getElementById('snapshot-time-info');
+            if (!infoEl) return;
+            if (raw) {
                 try {
-                    const parsed = JSON.parse(saved);
-                    el.innerText = `系統已於 ${parsed.time} 建立防呆安全快照。`;
+                    const snap = JSON.parse(raw);
+                    infoEl.innerText = `系統將自動於關鍵操作前存檔。目前快照時間：${snap.timestamp}`;
                 } catch(e) {
-                    el.innerText = '尚無快照';
+                    infoEl.innerText = '系統將自動於關鍵操作前存檔。目前快照時間：尚無快照';
                 }
             } else {
-                el.innerText = '尚無快照';
+                infoEl.innerText = '系統將自動於關鍵操作前存檔。目前快照時間：尚無快照';
             }
         }
 
-        function restoreFromSnapshot() {
-            const saved = localStorage.getItem('pikmin_foolproof_snapshot');
-            if (!saved) {
-                alert('目前沒有找到安全快照紀錄！');
-                return;
-            }
-            try {
-                const parsed = JSON.parse(saved);
-                if (confirm(`確定要還原到快照時間【${parsed.time}】的資料嗎？\n此動作將復原當時的所有班級、學生與點名狀態！`)) {
-                    appState.classes = parsed.data.classes;
-                    appState.reasons = parsed.data.reasons;
-                    saveData(false); // 不重覆寫快照
-                    renderAll();
-                    showToast('🛡️ 已成功由防呆快照還原系統！');
-                }
-            } catch(e) {
-                alert('快照格式毀損，無法還原！');
-            }
-        }
+        // 自動防抖雲端儲存計時器
+        let autoSaveCloudTimer = null;
 
-        // 防抖計時器
-        let autoCloudDebounceTimer = null;
-
-        function updateCloudBadgeUI(status) {
-            const badge = document.getElementById('cloud-status-badge');
-            const txt = document.getElementById('cloud-status-text');
-            if (!badge || !txt) return;
-
-            if (status === 'syncing') {
-                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-500 text-amber-300 transition-all flex items-center gap-1";
-                txt.innerText = "雲端同步中...";
-            } else if (status === 'synced') {
-                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 transition-all flex items-center gap-1";
-                txt.innerText = "☁️ 雲端已同步";
-            } else if (status === 'error') {
-                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500 text-rose-300 transition-all flex items-center gap-1";
-                txt.innerText = "⚠️ 雲端未連通 (本地已存)";
-            } else {
-                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-900 border border-slate-600 text-slate-300 transition-all flex items-center gap-1";
-                txt.innerText = "💾 本地儲存";
-            }
-        }
-
-        function saveData(createSnapshot = true) {
-            // 1. 本地即時保存
+        function saveData(triggerCloud = true) {
             localStorage.setItem('pikmin_app_data_v3', JSON.stringify({
                 classes: appState.classes,
                 reasons: appState.reasons
             }));
 
-            // 2. 防呆模式快照
-            if (createSnapshot && appState.foolproofMode) {
-                makeFoolproofSnapshot();
-            }
+            updateCloudBadgeUI(appState.gasUrl ? 'pending' : 'local');
 
-            // 3. 自動雲端備份防抖排程
-            if (appState.autoCloudSave && appState.gasUrl) {
-                updateCloudBadgeUI('syncing');
-                clearTimeout(autoCloudDebounceTimer);
-                autoCloudDebounceTimer = setTimeout(() => {
+            if (triggerCloud && appState.autoCloudSave && appState.gasUrl) {
+                if (autoSaveCloudTimer) clearTimeout(autoSaveCloudTimer);
+                autoSaveCloudTimer = setTimeout(() => {
                     saveDataToCloud(false);
                 }, 2000);
+            }
+        }
+
+        function updateCloudBadgeUI(status) {
+            const badge = document.getElementById('cloud-status-badge');
+            const text = document.getElementById('cloud-status-text');
+            if (!badge || !text) return;
+
+            if (status === 'synced') {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 hover:bg-emerald-900 transition-all flex items-center gap-1";
+                text.innerText = "☁️ 雲端已同步";
+            } else if (status === 'syncing') {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-500 text-amber-300 hover:bg-amber-900 transition-all flex items-center gap-1";
+                text.innerText = "雲端同步中...";
+            } else if (status === 'error') {
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500 text-rose-300 hover:bg-rose-900 transition-all flex items-center gap-1";
+                text.innerText = "⚠️ 雲端待重試";
             } else {
-                updateCloudBadgeUI(appState.gasUrl ? 'synced' : 'local');
+                badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 hover:bg-emerald-900 transition-all flex items-center gap-1";
+                text.innerText = "💾 本地已儲存";
             }
         }
 
@@ -1130,10 +1185,10 @@
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-msg');
             const toastIcon = document.getElementById('toast-icon');
-            toastMsg.innerText = msg;
-            toastIcon.innerText = icon;
+            if (toastMsg) toastMsg.innerText = msg;
+            if (toastIcon) toastIcon.innerText = icon;
             toast.classList.remove('hidden');
-            setTimeout(() => { toast.classList.add('hidden'); }, 2600);
+            setTimeout(() => { toast.classList.add('hidden'); }, 2500);
         }
 
         function setMainDisplayView(mode) {
@@ -1148,8 +1203,6 @@
             renderBlackboard();
             renderStudentCards();
             renderStore();
-            updateSnapshotInfoUI();
-            updateCloudBadgeUI(appState.gasUrl ? 'synced' : 'local');
         }
 
         function renderClassSelect() {
@@ -1176,14 +1229,13 @@
             document.getElementById('current-class-badge').innerText = cls.name;
             document.getElementById('board-homework').innerText = cls.homeworkText || '尚無作業';
             document.getElementById('board-announcement').innerText = cls.announcementText || '尚無公告';
-            document.getElementById('board-motto').innerText = cls.mottoText || '「加油！」';
+            document.getElementById('board-motto').innerText = cls.mottoText || '「齊心協力，勇往直前！」';
 
-            // 顯示最新點名紀錄時間
-            const indicatorEl = document.getElementById('board-attendance-indicator');
+            const indicator = document.getElementById('board-attendance-indicator');
             if (cls.lastAttendanceRecord) {
-                indicatorEl.innerHTML = `<i class="fa-solid fa-clipboard-check text-lime-400"></i> 最新點名紀錄：<span class="text-amber-200 font-mono">${cls.lastAttendanceRecord.dateTime}</span> (${cls.lastAttendanceRecord.summary || '已登記'})`;
+                indicator.innerHTML = `<i class="fa-solid fa-circle-check text-lime-400"></i> <span>點名紀錄：${cls.lastAttendanceRecord.dateTime} (${cls.lastAttendanceRecord.summary})</span>`;
             } else {
-                indicatorEl.innerHTML = `<i class="fa-regular fa-clock"></i> <span>今日尚未執行點名</span>`;
+                indicator.innerHTML = `<i class="fa-regular fa-clock"></i> <span>今日尚未執行點名</span>`;
             }
 
             document.getElementById('total-students-count').innerText = cls.students.length;
@@ -1220,11 +1272,11 @@
                     if (st.status === '遲到') statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold border border-amber-300">⏱️ 遲到</span>`;
                     if (st.status === '曠課') statusBadge = `<span class="bg-rose-100 text-rose-800 text-xs px-2 py-0.5 rounded-full font-bold border border-rose-300">❌ 曠課</span>`;
 
-                    let hwBadge = '';
-                    if (st.hwStatus === '已繳交') hwBadge = `<span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">📚 作業已繳</span>`;
-                    else if (st.hwStatus === '需訂正') hwBadge = `<span class="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">✏️ 需訂正</span>`;
-                    else if (st.hwStatus === '未繳交') hwBadge = `<span class="text-[10px] text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">⚠️ 未繳作業</span>`;
-                    else if (st.hwStatus === '缺交待補') hwBadge = `<span class="text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">🚨 缺交待補</span>`;
+                    let hwBadge = `<span class="bg-slate-100 text-slate-500 text-[10px] px-1.5 py-0.5 rounded-md font-bold">未登記</span>`;
+                    if (st.hwStatus === '已繳交') hwBadge = `<span class="bg-emerald-50 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded-md font-bold border border-emerald-200">📚 已繳</span>`;
+                    if (st.hwStatus === '未繳交') hwBadge = `<span class="bg-rose-50 text-rose-700 text-[10px] px-1.5 py-0.5 rounded-md font-bold border border-rose-200">⚠️ 未繳</span>`;
+                    if (st.hwStatus === '需訂正') hwBadge = `<span class="bg-amber-50 text-amber-700 text-[10px] px-1.5 py-0.5 rounded-md font-bold border border-amber-200">✏️ 需改</span>`;
+                    if (st.hwStatus === '缺交待補') hwBadge = `<span class="bg-purple-50 text-purple-700 text-[10px] px-1.5 py-0.5 rounded-md font-bold border border-purple-200">🚨 待補</span>`;
 
                     const unlockedCount = (st.unlockedAvatars && st.unlockedAvatars.length) ? st.unlockedAvatars.length : 1;
 
@@ -1434,6 +1486,8 @@
             const cls = getCurrentClass();
             if (!cls) return;
 
+            createSnapshot();
+
             if (id) {
                 const target = cls.rewards.find(r => r.id === id);
                 if (target) {
@@ -1497,19 +1551,21 @@
 
             const student = cls.students.find(s => s.no == inputVal || s.name === inputVal.trim());
             if (!student) {
-                alert('找不到該位隊員！請確認座號或姓名是否正確。');
+                showToast('找不到該位隊員！請確認座號或姓名。', '⚠️');
                 return;
             }
 
             if (student.score < reward.cost) {
-                alert(`【果實不足】${student.name} 目前只有 ${student.score} 顆果實，還差 ${reward.cost - student.score} 顆！`);
+                showToast(`【果實不足】${student.name} 目前只有 ${student.score} 顆果實，還差 ${reward.cost - student.score} 顆！`, '⚠️');
                 return;
             }
 
             if (reward.stock === 0) {
-                alert('該獎勵已無庫存！');
+                showToast('該獎勵已無庫存！', '⚠️');
                 return;
             }
+
+            createSnapshot();
 
             student.score -= reward.cost;
             if (reward.stock > 0) reward.stock -= 1;
@@ -1571,6 +1627,8 @@
             const student = cls.students.find(s => s.id === currentTargetStudentId);
             if (!student) return;
 
+            createSnapshot();
+
             const delta = (type === 'plus') ? points : -points;
             student.score = Math.max(0, student.score + delta);
 
@@ -1594,7 +1652,7 @@
         function openGroupScoreModal(groupNum = null) {
             const cls = getCurrentClass();
             if (!cls || cls.students.length === 0) {
-                showToast("目前尚無隊員資料！");
+                showToast("目前尚無隊員資料！", "⚠️");
                 return;
             }
 
@@ -1648,9 +1706,11 @@
 
             const groupMembers = cls.students.filter(s => (s.group || 1) === selectedGroup);
             if (groupMembers.length === 0) {
-                alert(`第 ${selectedGroup} 組目前沒有任何隊員！`);
+                showToast(`第 ${selectedGroup} 組目前沒有任何隊員！`, '⚠️');
                 return;
             }
+
+            createSnapshot();
 
             groupMembers.forEach(st => {
                 st.score = Math.max(0, st.score + delta);
@@ -1679,9 +1739,11 @@
 
             const numGroups = parseInt(countStr, 10);
             if (isNaN(numGroups) || numGroups < 1) {
-                alert('請輸入有效的數字組數！');
+                showToast('請輸入有效的數字組數！', '⚠️');
                 return;
             }
+
+            createSnapshot();
 
             const shuffled = [...cls.students].sort(() => Math.random() - 0.5);
             shuffled.forEach((st, idx) => {
@@ -1703,6 +1765,7 @@
             if (newG !== null) {
                 const gVal = parseInt(newG, 10);
                 if (!isNaN(gVal) && gVal > 0) {
+                    createSnapshot();
                     student.group = gVal;
                     saveData();
                     renderAll();
@@ -1712,9 +1775,6 @@
             }
         }
 
-        // ==========================================
-        // 🌟 新增功能 1：老師特許解鎖新品種給指定隊員
-        // ==========================================
         function populateTeacherUnlockSelect(student) {
             const select = document.getElementById('teacher-unlock-pikmin-select');
             if (!select) return;
@@ -1751,7 +1811,7 @@
             if (!student.unlockedAvatars) student.unlockedAvatars = ['red'];
 
             if (student.unlockedAvatars.includes(selectedPikminId)) {
-                if (!confirm(`${student.name} 已經擁有【${pikminInfo.name}】了！是否要直接幫他替換為目前造型？`)) {
+                if (!confirm(`${student.name} 已經擁有【${pikminInfo.name}】了！是否要直接幫他佩戴此造型？`)) {
                     return;
                 }
                 student.pikmin = selectedPikminId;
@@ -1762,9 +1822,9 @@
                 return;
             }
 
-            // 正式解鎖
+            createSnapshot();
+
             student.unlockedAvatars.push(selectedPikminId);
-            // 同時替換為新皮克敏
             student.pikmin = selectedPikminId;
 
             if (!student.history) student.history = [];
@@ -1782,11 +1842,10 @@
             showToast(`🎁 成功解鎖！已將 ${pikminInfo.name} 贈送給 ${student.name}！`, '🎉');
         }
 
-        // 從圖鑑直接贈送給指定小孩
         function teacherGiftFromDex(typeId) {
             const cls = getCurrentClass();
             if (!cls || cls.students.length === 0) {
-                alert('班級尚無學生！');
+                showToast('班級尚無學生！', '⚠️');
                 return;
             }
             const pikminInfo = PIKMIN_TYPES.find(p => p.id === typeId);
@@ -1798,18 +1857,20 @@
 
             const student = cls.students.find(s => s.no == inputVal || s.name === inputVal.trim());
             if (!student) {
-                alert('找不到該位隊員！請確認座號或姓名。');
+                showToast('找不到該位隊員！請確認座號或姓名。', '⚠️');
                 return;
             }
 
             if (!student.unlockedAvatars) student.unlockedAvatars = ['red'];
             if (student.unlockedAvatars.includes(typeId)) {
-                alert(`${student.name} 早就已經擁有【${pikminInfo.name}】囉！`);
+                showToast(`${student.name} 早就已經擁有【${pikminInfo.name}】囉！`, '💡');
                 return;
             }
 
+            createSnapshot();
+
             student.unlockedAvatars.push(typeId);
-            student.pikmin = typeId; // 自動裝備
+            student.pikmin = typeId;
 
             if (!student.history) student.history = [];
             student.history.unshift({
@@ -1922,6 +1983,7 @@
 
             const logIndex = student.history.findIndex(x => x.id === logId);
             if (logIndex !== -1) {
+                createSnapshot();
                 const log = student.history[logIndex];
                 student.score = Math.max(0, student.score - log.delta);
                 student.history.splice(logIndex, 1);
@@ -1933,9 +1995,6 @@
             }
         }
 
-        // ==========================================
-        // 🌟 新增功能 2：點名附上時間與日期
-        // ==========================================
         let currentCheckMode = 'attendance';
         let tempCheckState = [];
 
@@ -1943,7 +2002,8 @@
             const now = new Date();
             const offset = now.getTimezoneOffset() * 60000;
             const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
-            document.getElementById('attendance-datetime-input').value = localISOTime;
+            const inputEl = document.getElementById('attendance-datetime-input');
+            if (inputEl) inputEl.value = localISOTime;
         }
 
         function setAttendanceCheckMode(mode) {
@@ -2076,6 +2136,8 @@
             const cls = getCurrentClass();
             if (!cls) return;
 
+            createSnapshot();
+
             const rawDateTime = document.getElementById('attendance-datetime-input').value;
             let formattedDateTime = '';
             if (rawDateTime) {
@@ -2094,7 +2156,6 @@
                 }
             });
 
-            // 統計
             const present = tempCheckState.filter(s => s.status === '出席').length;
             const total = tempCheckState.length;
             cls.lastAttendanceRecord = {
@@ -2108,14 +2169,11 @@
             showToast(`📅 點名結果已儲存！記錄時間：${formattedDateTime}`);
         }
 
-        // ==========================================
-        // 🌟 新增功能 3：自動雲端儲存與防呆模式
-        // ==========================================
         function toggleAutoCloudSave(enabled) {
             appState.autoCloudSave = enabled;
             localStorage.setItem('pikmin_auto_cloud', enabled);
             if (enabled && !appState.gasUrl) {
-                alert('提示：您已開啟自動雲端儲存，請記得在下方填寫 GAS Web App 部署網址！');
+                showToast('提示：已啟用雲端自動儲存，請填寫 GAS Web App 網址！', '💡');
             }
             saveData(false);
             showToast(enabled ? "☁️ 已啟用自動雲端同步模式" : "已關閉自動雲端同步");
@@ -2207,7 +2265,7 @@
             const title = document.getElementById('new-reason-title').value.trim();
             const points = parseInt(document.getElementById('new-reason-points').value);
 
-            if (!title || !points) { alert('請完整填寫名稱與果實數量！'); return; }
+            if (!title || !points) { showToast('請完整填寫名稱與果實數量！', '⚠️'); return; }
 
             appState.reasons.push({ id: Date.now(), type, title, points });
             saveData();
@@ -2266,6 +2324,7 @@
         function addNewClassPrompt() {
             const name = prompt('請輸入新班級名稱 (例如: 五年三班)');
             if (name) {
+                createSnapshot();
                 const newId = 'class_' + Date.now();
                 appState.classes[newId] = {
                     name: name,
@@ -2290,10 +2349,11 @@
 
         function deleteClass(cId) {
             if (Object.keys(appState.classes).length <= 1) {
-                alert('最少需要保留一個班級！');
+                showToast('最少需要保留一個班級！', '⚠️');
                 return;
             }
             if (confirm(`【防呆確認】確定要刪除「${appState.classes[cId].name}」嗎？該班級所有隊員資料將被移除！`)) {
+                createSnapshot();
                 delete appState.classes[cId];
                 appState.currentClassId = Object.keys(appState.classes)[0];
                 saveData();
@@ -2307,6 +2367,7 @@
             const cls = getCurrentClass();
             if (!cls) return;
             if (confirm('【防呆確認】確定要刪除該位隊員嗎？其歷史紀錄與果實也將同步移除。')) {
+                createSnapshot();
                 cls.students = cls.students.filter(s => s.id !== stId);
                 saveData();
                 renderAll();
@@ -2323,10 +2384,11 @@
             const name = document.getElementById('new-student-name').value.trim();
             const group = parseInt(document.getElementById('new-student-group').value, 10) || 1;
 
-            if (!no || !name) { alert('請填寫座號與姓名！'); return; }
+            if (!no || !name) { showToast('請填寫座號與姓名！', '⚠️'); return; }
 
             const cls = getCurrentClass();
             if (cls) {
+                createSnapshot();
                 cls.students.push({
                     id: Date.now(),
                     no: no,
@@ -2355,11 +2417,13 @@
         
         function processBatchAddStudents() {
             const text = document.getElementById('batch-students-input').value.trim();
-            if (!text) { alert('請輸入或貼上學生名單！'); return; }
+            if (!text) { showToast('請輸入或貼上學生名單！', '⚠️'); return; }
 
             const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             const cls = getCurrentClass();
             if (!cls) return;
+
+            createSnapshot();
 
             let maxNo = cls.students.reduce((max, s) => Math.max(max, s.no || 0), 0);
             let count = 0;
@@ -2400,26 +2464,96 @@
             showToast(`成功批次新增 ${count} 位隊員！`);
         }
 
-        function editBoardItem(type) {
+        let currentBoardEditType = 'homework';
+
+        function openBoardEditorModal(type) {
+            currentBoardEditType = type;
             const cls = getCurrentClass();
             if (!cls) return;
 
-            let title = '';
-            let currentVal = '';
-            if (type === 'homework') { title = '今日作業事項'; currentVal = cls.homeworkText || ''; }
-            else if (type === 'announcement') { title = '班級重要公告'; currentVal = cls.announcementText || ''; }
-            else if (type === 'motto') { title = '今日探險口號'; currentVal = cls.mottoText || ''; }
+            document.getElementById('board-editor-target-type').value = type;
+            const titleEl = document.getElementById('board-editor-title');
+            const iconEl = document.getElementById('board-editor-icon');
+            const textarea = document.getElementById('board-editor-textarea');
 
-            const newVal = prompt(`修改【${title}】:`, currentVal);
-            if (newVal !== null) {
-                if (type === 'homework') cls.homeworkText = newVal;
-                else if (type === 'announcement') cls.announcementText = newVal;
-                else if (type === 'motto') cls.mottoText = newVal;
-
-                saveData();
-                renderBlackboard();
-                showToast(`已更新${title}`);
+            let currentContent = '';
+            if (type === 'homework') {
+                iconEl.innerText = '📚';
+                titleEl.innerText = '編輯「今日作業事項」';
+                textarea.placeholder = '例如：\n1. 國語甲本第 20-22 頁生字語詞\n2. 數學習作第 35-37 頁\n3. 準備明天自然科實驗用具\n4. 簽名家庭聯絡簿';
+                currentContent = cls.homeworkText || '';
+            } else if (type === 'announcement') {
+                iconEl.innerText = '📢';
+                titleEl.innerText = '編輯「班級重要公告」';
+                textarea.placeholder = '例如：\n【本週重要行事】\n• 週三下午：全校防震疏散演練\n• 週五：戶外生態觀察，請穿著運動服與攜帶水壺\n• 提醒：下週一繳交學期回條';
+                currentContent = cls.announcementText || '';
+            } else if (type === 'motto') {
+                iconEl.innerText = '🌟';
+                titleEl.innerText = '編輯「今日探險口號」';
+                textarea.placeholder = '例如：「團結合作，齊心收集探險果實！」';
+                currentContent = cls.mottoText || '';
             }
+
+            textarea.value = currentContent;
+            updateBoardCharCount();
+
+            document.getElementById('board-editor-modal').classList.remove('hidden');
+            setTimeout(() => textarea.focus(), 150);
+        }
+
+        function closeBoardEditorModal() {
+            document.getElementById('board-editor-modal').classList.add('hidden');
+        }
+
+        function updateBoardCharCount() {
+            const val = document.getElementById('board-editor-textarea').value;
+            document.getElementById('board-editor-char-count').innerText = `${val.length} 字`;
+        }
+
+        function insertQuickBoardText(str) {
+            const textarea = document.getElementById('board-editor-textarea');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const val = textarea.value;
+            textarea.value = val.substring(0, start) + str + val.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + str.length;
+            updateBoardCharCount();
+        }
+
+        function saveBoardEditorContent() {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            createSnapshot();
+
+            const type = document.getElementById('board-editor-target-type').value;
+            const newContent = document.getElementById('board-editor-textarea').value.trim();
+
+            let titleName = '';
+            if (type === 'homework') {
+                cls.homeworkText = newContent || '今日尚無指定作業';
+                titleName = '今日作業事項';
+            } else if (type === 'announcement') {
+                cls.announcementText = newContent || '目前無最新班級公告';
+                titleName = '班級重要公告';
+            } else if (type === 'motto') {
+                cls.mottoText = newContent || '「齊心協力，勇往直前！」';
+                titleName = '今日探險口號';
+            }
+
+            saveData();
+            renderBlackboard();
+            
+            const fsModal = document.getElementById('fullscreen-blackboard-modal');
+            if (!fsModal.classList.contains('hidden')) {
+                document.getElementById('fs-homework').innerText = cls.homeworkText || '無';
+                document.getElementById('fs-announcement').innerText = cls.announcementText || '無';
+                document.getElementById('fs-motto').innerText = cls.mottoText || '';
+            }
+
+            closeBoardEditorModal();
+            showToast(`已成功更新【${titleName}】！`);
         }
 
         let fsClockTimer = null;
@@ -2458,7 +2592,7 @@
         let isRandoming = false;
         function startRandomPick() {
             const cls = getCurrentClass();
-            if (!cls || cls.students.length === 0) { alert('沒有可抽取的學生！'); return; }
+            if (!cls || cls.students.length === 0) { showToast('沒有可抽取的學生！', '⚠️'); return; }
             if (isRandoming) return;
 
             isRandoming = true;
@@ -2526,7 +2660,7 @@
         function importDataJSON() {
             const fileInput = document.getElementById('import-json-file');
             if (!fileInput.files || fileInput.files.length === 0) {
-                alert('請先選擇要匯入的 JSON 檔案！');
+                showToast('請先選擇要匯入的 JSON 檔案！', '⚠️');
                 return;
             }
             const file = fileInput.files[0];
@@ -2534,6 +2668,7 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
+                    createSnapshot();
                     if (data.classes) appState.classes = data.classes;
                     if (data.reasons) appState.reasons = data.reasons;
                     saveData();
@@ -2541,7 +2676,7 @@
                     showToast("備份資料成功匯入！");
                     closeSettingsModal();
                 } catch (err) {
-                    alert('格式錯誤，無法載入 JSON 檔！');
+                    showToast('格式錯誤，無法載入 JSON 檔！', '⚠️');
                 }
             };
             reader.readAsText(file);
@@ -2549,12 +2684,9 @@
 
         function resetDataToDefault() {
             if (confirm("【防呆警報】警告：這將會清除目前所有班級、點名與學生資料，恢復為預設範例！確定執行嗎？")) {
-                if (prompt("請輸入「RESET」確認完全重置：") === "RESET") {
-                    localStorage.removeItem('pikmin_app_data_v3');
-                    location.reload();
-                } else {
-                    alert('已取消重置操作。');
-                }
+                createSnapshot();
+                localStorage.removeItem('pikmin_app_data_v3');
+                location.reload();
             }
         }
 
@@ -2574,33 +2706,34 @@
         }
 
         async function loadDataFromCloud() {
-            if (!appState.gasUrl) { alert('請先設定 GAS Web App URL！'); return; }
+            if (!appState.gasUrl) { showToast('請先設定 GAS Web App URL！', '⚠️'); return; }
             try {
                 showToast("雲端資料載入中...", "⏳");
                 updateCloudBadgeUI('syncing');
                 const res = await fetch(appState.gasUrl + '?action=get');
                 const data = await res.json();
                 if (data && data.classes) {
+                    createSnapshot();
                     appState.classes = data.classes;
                     if (data.reasons) appState.reasons = data.reasons;
-                    saveData(false); // 載入後存到本地
+                    saveData(false);
                     renderAll();
                     updateCloudBadgeUI('synced');
                     showToast("☁️ 已成功從雲端同步最新的資料！", "✅");
                 } else {
                     updateCloudBadgeUI('error');
-                    alert('從雲端讀取資料失敗，格式不符或沒有資料。');
+                    showToast('從雲端讀取資料失敗，格式不符或沒有資料。', '⚠️');
                 }
             } catch (err) {
                 console.error(err);
                 updateCloudBadgeUI('error');
-                alert('串接雲端失敗，請確認 GAS URL 是否正確及權限是否開放！');
+                showToast('串接雲端失敗，請確認 GAS URL 是否正確及權限是否開放！', '⚠️');
             }
         }
 
         async function saveDataToCloud(showManualAlert = false) {
             if (!appState.gasUrl) { 
-                if (showManualAlert) alert('請先設定 GAS Web App URL！'); 
+                if (showManualAlert) showToast('請先設定 GAS Web App URL！', '⚠️'); 
                 return; 
             }
             try {
@@ -2621,17 +2754,19 @@
                     if (showManualAlert) showToast("☁️ 已成功手動同步備份至雲端！", "✅");
                 } else {
                     updateCloudBadgeUI('error');
-                    if (showManualAlert) alert('雲端儲存失敗：' + result.message);
+                    if (showManualAlert) showToast('雲端儲存失敗：' + result.message, '⚠️');
                 }
             } catch (err) {
                 console.error(err);
                 updateCloudBadgeUI('error');
-                if (showManualAlert) alert('上傳至雲端失敗，請確認網路或 GAS 設定！本地資料已完好保存。');
+                if (showManualAlert) showToast('上傳至雲端失敗，請確認網路或 GAS 設定！本地資料已完好保存。', '⚠️');
             }
         }
 
+        // 系統初始化加載
         window.onload = function() {
             renderAll();
+            updateCloudBadgeUI(appState.gasUrl ? 'synced' : 'local');
         };
     </script>
 </body>
