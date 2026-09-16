@@ -173,7 +173,7 @@
                     🍓
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-200">皮克敏班級探險與大屏點名系統</h1>
+                    <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-200">皮克敏班級探險隊</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-xs text-nature-200">大地綠意配色 • 高清皮克敏頭像圖鑑 • 分組競賽與果實加分</p>
                         <!-- 雲端狀態指示燈 (點擊直接進入雲端設定與檢測) -->
@@ -466,8 +466,8 @@
     </div>
 
     <!-- Modal 3. 大屏點名與作業 (含時間日期登記) -->
-    <div id="attendance-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-stone-50 rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden">
+    <div id="attendance-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 sm:p-4 transition-all duration-200">
+        <div id="attendance-modal-container" class="bg-stone-50 rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden transition-all duration-300">
             <div class="bg-nature-800 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-4 border-amber-500">
                 <div>
                     <h3 class="text-2xl font-black text-amber-200 flex items-center gap-2">
@@ -476,9 +476,17 @@
                     <p class="text-xs text-nature-200">單擊切換點名狀態 / 切換模式登記今日作業繳交</p>
                 </div>
                 
-                <div class="flex items-center gap-2 bg-nature-950/60 p-1.5 rounded-2xl border border-nature-600">
-                    <button id="mode-btn-attendance" onclick="setAttendanceCheckMode('attendance')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-amber-950">📋 每日點名</button>
-                    <button id="mode-btn-homework" onclick="setAttendanceCheckMode('homework')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700">📚 作業檢查</button>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-nature-950/60 p-1.5 rounded-2xl border border-nature-600">
+                        <button id="mode-btn-attendance" onclick="setAttendanceCheckMode('attendance')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-amber-950">📋 每日點名</button>
+                        <button id="mode-btn-homework" onclick="setAttendanceCheckMode('homework')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700">📚 作業檢查</button>
+                    </div>
+
+                    <!-- 大屏全螢幕放大切換按鈕 -->
+                    <button id="attendance-fs-toggle-btn" onclick="toggleAttendanceFullScreen()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3.5 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 border-2 border-amber-300">
+                        <i id="attendance-fs-icon" class="fa-solid fa-expand text-sm"></i>
+                        <span id="attendance-fs-label">🖥️ 大屏全螢幕</span>
+                    </button>
                 </div>
             </div>
 
@@ -2008,6 +2016,33 @@
 
         let currentCheckMode = 'attendance';
         let tempCheckState = [];
+        let isAttendanceFullScreen = false;
+
+        function toggleAttendanceFullScreen() {
+            isAttendanceFullScreen = !isAttendanceFullScreen;
+            const modalEl = document.getElementById('attendance-modal');
+            const containerEl = document.getElementById('attendance-modal-container');
+            const iconEl = document.getElementById('attendance-fs-icon');
+            const labelEl = document.getElementById('attendance-fs-label');
+            const gridEl = document.getElementById('attendance-grid');
+
+            if (isAttendanceFullScreen) {
+                modalEl.className = "fixed inset-0 bg-slate-900 z-50 flex flex-col p-0 overflow-hidden";
+                containerEl.className = "bg-stone-50 w-full h-full max-w-none max-h-none rounded-none border-none flex flex-col overflow-hidden";
+                gridEl.className = "p-6 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 bg-nature-50";
+                iconEl.className = "fa-solid fa-compress text-sm";
+                labelEl.innerText = "🗗 縮小視窗";
+            } else {
+                modalEl.className = "fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 sm:p-4 transition-all duration-200";
+                modalEl.classList.remove('hidden');
+                containerEl.className = "bg-stone-50 rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden transition-all duration-300";
+                gridEl.className = "p-4 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 bg-nature-50";
+                iconEl.className = "fa-solid fa-expand text-sm";
+                labelEl.innerText = "🖥️ 大屏全螢幕";
+            }
+
+            renderAttendanceGrid();
+        }
 
         function setAttendanceToNow() {
             const now = new Date();
@@ -2051,6 +2086,9 @@
         }
 
         function closeAttendanceModal() {
+            if (isAttendanceFullScreen) {
+                toggleAttendanceFullScreen();
+            }
             document.getElementById('attendance-modal').classList.add('hidden');
         }
 
@@ -2123,16 +2161,21 @@
                     else if (s.hwStatus === '缺交待補') { btnStyle = "bg-purple-600 text-white border-purple-800 shadow-lg"; badgeText = "🚨 缺交待補"; }
                 }
 
+                const cardHeightClass = isAttendanceFullScreen ? "h-36 sm:h-40 p-4" : "h-28 p-3";
+                const nameTextClass = isAttendanceFullScreen ? "text-3xl sm:text-4xl font-black my-auto tracking-wider" : "text-2xl font-black my-auto tracking-wide";
+                const badgeTextClass = isAttendanceFullScreen ? "px-2.5 py-1 rounded-full text-xs font-black bg-black/25" : "px-2 py-0.5 rounded-full text-[10px] bg-black/20";
+                const noTextClass = isAttendanceFullScreen ? "text-sm font-black" : "text-xs font-bold";
+
                 const btn = document.createElement('button');
                 btn.onclick = () => toggleCheckStatus(s.id);
-                btn.className = `touch-btn h-28 rounded-2xl p-3 flex flex-col justify-between items-center text-center transition-all ${btnStyle}`;
+                btn.className = `touch-btn ${cardHeightClass} rounded-2xl flex flex-col justify-between items-center text-center transition-all ${btnStyle}`;
                 btn.innerHTML = `
-                    <div class="flex justify-between w-full text-xs font-bold opacity-90">
-                        <span>${s.no}號</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] bg-black/20">${badgeText}</span>
+                    <div class="flex justify-between w-full font-bold opacity-95">
+                        <span class="${noTextClass}">${s.no}號</span>
+                        <span class="${badgeTextClass}">${badgeText}</span>
                     </div>
-                    <div class="text-2xl font-black my-auto tracking-wide">${s.name}</div>
-                    <div class="text-[9px] opacity-75 truncate w-full">${s.lastAttendanceTime ? s.lastAttendanceTime.slice(5) : ''}</div>
+                    <div class="${nameTextClass}">${s.name}</div>
+                    <div class="text-[10px] opacity-80 truncate w-full font-mono">${s.lastAttendanceTime ? s.lastAttendanceTime.slice(5) : ''}</div>
                 `;
                 grid.appendChild(btn);
             });
