@@ -175,8 +175,8 @@
                 <div>
                     <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-200">皮克敏班級探險隊</h1>
                     <div class="flex items-center gap-2 mt-0.5">
-                        <p class="text-xs text-nature-200">大地綠意配色 • 高清皮克敏頭像圖鑑 • 分組競賽與果實加分</p>
-                        <!-- 雲端狀態指示燈 (點擊直接進入雲端設定與檢測) -->
+                        <p class="text-xs text-nature-200">大地綠意配色 • 30天自動滾動履歷 • 分組競賽與果實加分</p>
+                        <!-- 雲端狀態指示燈 -->
                         <span id="cloud-status-badge" onclick="openSettingsModal('cloud')" class="cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 hover:bg-emerald-900 transition-all flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span id="cloud-status-text">本地已儲存</span>
@@ -190,34 +190,40 @@
                 <select id="class-select" onchange="switchClass(this.value)" class="bg-nature-900 text-amber-300 font-bold px-3 py-2 rounded-xl border border-nature-600 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm">
                 </select>
 
-                <button onclick="openGroupScoreModal()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3.5 py-2 rounded-xl shadow border-b-4 border-amber-700 flex items-center gap-1.5 text-sm">
+                <button onclick="openGroupScoreModal()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3 py-2 rounded-xl shadow border-b-4 border-amber-700 flex items-center gap-1.5 text-sm">
                     <i class="fa-solid fa-trophy text-base"></i>
                     <span>🏆 組別加分</span>
                 </button>
 
-                <button onclick="openAttendanceModal()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-emerald-800 flex items-center gap-1.5 text-sm">
+                <button onclick="openAttendanceModal()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl shadow border-b-4 border-emerald-800 flex items-center gap-1.5 text-sm">
                     <i class="fa-solid fa-clipboard-user text-base"></i>
                     <span>點名 / 作業</span>
                 </button>
 
-                <button onclick="openShopModal()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-amber-800 flex items-center gap-1.5 text-sm">
+                <!-- 新增：近一個月歷史紀錄查詢按鈕 -->
+                <button onclick="openHistoryQueryModal()" class="touch-btn bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl shadow border-b-4 border-indigo-800 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-clock-rotate-left text-base"></i>
+                    <span>📊 紀錄查詢</span>
+                </button>
+
+                <button onclick="openShopModal()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl shadow border-b-4 border-amber-800 flex items-center gap-1.5 text-sm">
                     <i class="fa-solid fa-store text-base"></i>
-                    <span>🍎 果實兌換處</span>
+                    <span>🍎 兌換處</span>
                 </button>
 
-                <button onclick="openPikminDexModal()" class="touch-btn bg-lime-600 hover:bg-lime-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-lime-800 flex items-center gap-1.5 text-sm">
+                <button onclick="openPikminDexModal()" class="touch-btn bg-lime-600 hover:bg-lime-500 text-white font-bold px-3 py-2 rounded-xl shadow border-b-4 border-lime-800 flex items-center gap-1.5 text-sm">
                     <i class="fa-solid fa-book-atlas text-base"></i>
-                    <span>皮克敏圖鑑</span>
+                    <span>圖鑑</span>
                 </button>
 
-                <button onclick="openRandomModal()" class="touch-btn bg-teal-600 hover:bg-teal-500 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-teal-800 flex items-center gap-1.5 text-sm">
+                <button onclick="openRandomModal()" class="touch-btn bg-teal-600 hover:bg-teal-500 text-white font-bold px-3 py-2 rounded-xl shadow border-b-4 border-teal-800 flex items-center gap-1.5 text-sm">
                     <i class="fa-solid fa-dice text-base"></i>
-                    <span>抽幸運兒</span>
+                    <span>抽籤</span>
                 </button>
 
-                <button onclick="openSettingsModal()" class="touch-btn bg-slate-700 hover:bg-slate-600 text-white font-bold px-3.5 py-2 rounded-xl shadow border-b-4 border-slate-900 flex items-center gap-1.5 text-sm">
+                <button onclick="openSettingsModal()" class="touch-btn bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-xl shadow border-b-4 border-slate-900 flex items-center gap-1.5 text-sm">
                     <i class="fa-solid fa-gear text-base"></i>
-                    <span>系統設定</span>
+                    <span>設定</span>
                 </button>
             </div>
         </div>
@@ -239,6 +245,10 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
+                    <button onclick="loadLatestDataFromCloud(true)" class="touch-btn bg-emerald-700 hover:bg-emerald-600 text-white font-black px-3.5 py-2 rounded-xl shadow flex items-center gap-1 text-xs border border-emerald-400">
+                        <i class="fa-solid fa-rotate text-sm"></i>
+                        <span>重新讀取最新</span>
+                    </button>
                     <button onclick="toggleFullScreenBlackboard()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-4 py-2 rounded-xl shadow flex items-center gap-2 text-sm border-2 border-amber-300">
                         <i class="fa-solid fa-expand text-base"></i>
                         <span>🖥️ 全屏黑板</span>
@@ -256,16 +266,16 @@
                 </div>
             </div>
 
-            <!-- 黑板告示區域 (支援長篇多行文字與內部平滑滾動) -->
+            <!-- 黑板告示區域 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-emerald-100 mb-4">
                 <div class="bg-emerald-950/60 p-3.5 rounded-xl border border-emerald-800 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <span class="font-bold text-amber-300 text-sm"><i class="fa-solid fa-pen-ruler mr-1"></i> 今日作業事項</span>
-                            <button onclick="openBoardEditorModal('homework')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯內容</button>
+                            <button onclick="openBoardEditorModal('homework')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯</button>
                         </div>
                         <div class="max-h-48 overflow-y-auto pr-1">
-                            <p id="board-homework" class="text-sm font-medium whitespace-pre-wrap break-words leading-relaxed">1. 數學隨堂測驗本 p.20-21&#10;2. 國語單元六生字造詞</p>
+                            <p id="board-homework" class="text-sm font-medium whitespace-pre-wrap break-words leading-relaxed">尚無作業事項</p>
                         </div>
                     </div>
                 </div>
@@ -274,10 +284,10 @@
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <span class="font-bold text-lime-300 text-sm"><i class="fa-solid fa-bullhorn mr-1"></i> 班級重要公告</span>
-                            <button onclick="openBoardEditorModal('announcement')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯內容</button>
+                            <button onclick="openBoardEditorModal('announcement')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯</button>
                         </div>
                         <div class="max-h-48 overflow-y-auto pr-1">
-                            <p id="board-announcement" class="text-sm font-medium whitespace-pre-wrap break-words leading-relaxed">明天下午為戶外生態觀察，請著運動服並攜帶水壺！</p>
+                            <p id="board-announcement" class="text-sm font-medium whitespace-pre-wrap break-words leading-relaxed">尚無公告</p>
                         </div>
                     </div>
                 </div>
@@ -286,10 +296,10 @@
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <span class="font-bold text-amber-200 text-sm"><i class="fa-solid fa-quote-left mr-1"></i> 今日探險口號</span>
-                            <button onclick="openBoardEditorModal('motto')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯內容</button>
+                            <button onclick="openBoardEditorModal('motto')" class="text-xs text-emerald-300 bg-emerald-900/80 hover:bg-emerald-800 px-2 py-0.5 rounded-lg border border-emerald-600 transition-colors">✏️ 編輯</button>
                         </div>
                         <div class="max-h-48 overflow-y-auto pr-1 flex items-center">
-                            <p id="board-motto" class="text-sm font-bold text-amber-200 italic whitespace-pre-wrap break-words leading-relaxed">「團結合作，齊心收集探險果實！」</p>
+                            <p id="board-motto" class="text-sm font-bold text-amber-200 italic whitespace-pre-wrap break-words leading-relaxed">「齊心協力，勇敢探索！」</p>
                         </div>
                     </div>
                 </div>
@@ -328,6 +338,78 @@
         <div id="student-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         </div>
     </main>
+
+    <!-- Modal: 近一個月歷史紀錄查詢中心 (加減分與作業點名) -->
+    <div id="history-query-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-indigo-600 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden">
+            <div class="bg-indigo-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-400">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-2xl text-amber-300"></i>
+                    <div>
+                        <h3 class="text-xl font-black text-amber-200">近 30 天班級探險與作業繳交歷史紀錄</h3>
+                        <p class="text-xs text-indigo-200">保留 30 天履歷，可隨時依日期、姓名、事由篩選與匯出</p>
+                    </div>
+                </div>
+                <button onclick="closeHistoryQueryModal()" class="text-white hover:text-amber-200 text-2xl font-bold px-2">&times;</button>
+            </div>
+
+            <!-- 查詢標籤分頁 -->
+            <div class="bg-indigo-50 border-b border-indigo-200 p-3 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex gap-2">
+                    <button id="query-tab-score" onclick="switchQueryTab('score')" class="px-4 py-2 rounded-xl text-xs font-black bg-indigo-700 text-white shadow">🍓 果實加減分歷程</button>
+                    <button id="query-tab-attendance" onclick="switchQueryTab('attendance')" class="px-4 py-2 rounded-xl text-xs font-black bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100">📋 作業繳交與點名紀錄</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportCurrentFilteredRecordsCSV()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-csv text-sm"></i>
+                        <span>匯出此表格 CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 篩選列 -->
+            <div class="p-4 bg-white border-b border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">搜尋隊員姓名/座號：</label>
+                    <input type="text" id="query-filter-student" oninput="renderHistoryQueryTable()" placeholder="例如：林小綠 或 1" class="w-full p-2 border-2 border-slate-300 rounded-xl text-xs font-bold focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">過濾事由/作業項目：</label>
+                    <input type="text" id="query-filter-keyword" oninput="renderHistoryQueryTable()" placeholder="關鍵字，如：發言、訂正" class="w-full p-2 border-2 border-slate-300 rounded-xl text-xs font-bold focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">天數範圍：</label>
+                    <select id="query-filter-days" onchange="renderHistoryQueryTable()" class="w-full p-2 border-2 border-slate-300 rounded-xl text-xs font-bold focus:border-indigo-500 focus:outline-none">
+                        <option value="30">近 30 天內紀錄 (預設)</option>
+                        <option value="14">近 14 天內紀錄</option>
+                        <option value="7">近 7 天內紀錄</option>
+                        <option value="1">今日紀錄</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 內容清單表格 -->
+            <div class="p-4 overflow-y-auto flex-1 bg-stone-50">
+                <div class="overflow-x-auto bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-indigo-100 text-indigo-950 font-black" id="query-table-head">
+                            <!-- 動態生成欄位 -->
+                        </thead>
+                        <tbody id="query-table-body" class="divide-y divide-slate-200">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="query-empty-state" class="text-center py-12 text-slate-400 font-bold hidden">
+                    查無符合條件的近 30 天紀錄。
+                </div>
+            </div>
+
+            <div class="bg-stone-100 p-3.5 border-t border-stone-200 flex justify-between items-center text-xs font-bold text-slate-500">
+                <span id="query-count-summary">共 0 筆紀錄</span>
+                <button onclick="closeHistoryQueryModal()" class="touch-btn bg-slate-600 text-white font-bold px-6 py-2 rounded-xl text-sm">關閉</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal 1. 個人加減分事由 -->
     <div id="score-reason-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
@@ -406,7 +488,7 @@
         </div>
     </div>
 
-    <!-- Modal 2. 學生個人歷程與頭像切換 (含老師特許解鎖新品種) -->
+    <!-- Modal 2. 學生個人歷程與頭像切換 -->
     <div id="student-history-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
             <div class="bg-nature-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
@@ -452,7 +534,7 @@
                 <!-- 歷程記錄清單 -->
                 <div>
                     <h4 class="font-bold text-slate-700 text-sm mb-2 flex items-center justify-between">
-                        <span>📜 探險果實與出缺席歷程</span>
+                        <span>📜 探險果實歷程 (保留近30天)</span>
                         <span class="text-[11px] text-slate-400 font-normal">依時間倒序排列</span>
                     </h4>
                     <div id="history-logs-list" class="space-y-2"></div>
@@ -465,7 +547,7 @@
         </div>
     </div>
 
-    <!-- Modal 3. 大屏點名與作業 (含時間日期登記) -->
+    <!-- Modal 3. 大屏點名與作業 -->
     <div id="attendance-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 sm:p-4 transition-all duration-200">
         <div id="attendance-modal-container" class="bg-stone-50 rounded-3xl shadow-2xl border-4 border-nature-600 w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden transition-all duration-300">
             <div class="bg-nature-800 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-4 border-amber-500">
@@ -473,7 +555,7 @@
                     <h3 class="text-2xl font-black text-amber-200 flex items-center gap-2">
                         <i class="fa-solid fa-hand-pointer"></i> 大屏點名與作業登記系統
                     </h3>
-                    <p class="text-xs text-nature-200">單擊切換點名狀態 / 切換模式登記今日作業繳交</p>
+                    <p class="text-xs text-nature-200">單擊切換狀態 / 自動保存 30 天內作業紀錄</p>
                 </div>
                 
                 <div class="flex items-center gap-2">
@@ -482,7 +564,6 @@
                         <button id="mode-btn-homework" onclick="setAttendanceCheckMode('homework')" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all text-white hover:bg-nature-700">📚 作業檢查</button>
                     </div>
 
-                    <!-- 大屏全螢幕放大切換按鈕 -->
                     <button id="attendance-fs-toggle-btn" onclick="toggleAttendanceFullScreen()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3.5 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 border-2 border-amber-300">
                         <i id="attendance-fs-icon" class="fa-solid fa-expand text-sm"></i>
                         <span id="attendance-fs-label">🖥️ 大屏全螢幕</span>
@@ -490,11 +571,11 @@
                 </div>
             </div>
 
-            <!-- 點名登記附上時間與日期選擇器 -->
+            <!-- 點名時間 -->
             <div class="bg-amber-100/90 border-b border-amber-300 p-3 flex flex-wrap justify-between items-center gap-3">
                 <div class="flex items-center gap-2 text-xs font-black text-amber-950">
                     <i class="fa-solid fa-calendar-day text-amber-700 text-sm"></i>
-                    <span>點名登記時間：</span>
+                    <span>登記時間：</span>
                     <input type="datetime-local" id="attendance-datetime-input" class="bg-white border-2 border-amber-400 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none">
                     <button onclick="setAttendanceToNow()" class="touch-btn bg-amber-500 hover:bg-amber-400 text-amber-950 px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">現在時間 ⏱️</button>
                 </div>
@@ -514,13 +595,13 @@
                 <button onclick="closeAttendanceModal()" class="touch-btn bg-slate-400 hover:bg-slate-500 text-white font-bold px-5 py-2.5 rounded-xl text-base">取消</button>
                 <button onclick="saveAttendance()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-black px-6 py-2.5 rounded-xl text-base shadow-lg border-b-4 border-amber-800 flex items-center gap-2">
                     <i class="fa-solid fa-floppy-disk"></i>
-                    <span>儲存點名紀錄 💾</span>
+                    <span>儲存並記錄 💾</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal 4. 系統設定 (含雲端自動診斷與測試) -->
+    <!-- Modal 4. 系統設定 (含雲端記錄履歷與診斷) -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5">
         <div class="bg-white rounded-3xl shadow-2xl border-4 border-slate-700 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
             <div class="bg-slate-800 text-white p-4 flex justify-between items-center border-b-4 border-amber-500">
@@ -593,7 +674,7 @@
                     <div class="bg-amber-50 p-4 rounded-2xl border border-amber-300 flex flex-col justify-between">
                         <div>
                             <h4 class="font-black text-amber-900 text-base mb-1">📤 匯出系統備份資料 (JSON)</h4>
-                            <p class="text-xs text-amber-700 mb-4">將所有班級學生、分組、兌換獎勵、點名紀錄與皮克敏頭像解鎖狀態備份匯出。</p>
+                            <p class="text-xs text-amber-700 mb-4">包含目前班級名單、分組、30天歷程紀錄及皮克敏收集進度。</p>
                         </div>
                         <button onclick="exportDataJSON()" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow">下載 JSON 備份檔</button>
                     </div>
@@ -615,13 +696,13 @@
                 </div>
             </div>
 
-            <!-- 子頁籤 4: 雲端 GAS 同步與診斷工具 -->
+            <!-- 子頁籤 4: 雲端 GAS 同步與診斷工具 (支援 30 天滾動覆蓋紀錄) -->
             <div id="tab-content-cloud" class="p-5 overflow-y-auto flex-1 space-y-4 hidden">
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-300 space-y-4">
                     <div class="flex justify-between items-start">
                         <div>
                             <h4 class="font-black text-slate-800 text-sm flex items-center gap-2">
-                                <span>☁️ Google Apps Script (GAS) Web App 雲端自動同步</span>
+                                <span>☁️ Google Apps Script (GAS) 雲端 30 天滾動存取機制</span>
                             </h4>
                             <p class="text-xs text-slate-500 mt-1">貼上您的 GAS Web App 部署 URL（結尾必須為 <code class="bg-amber-100 text-amber-900 px-1 py-0.5 rounded font-mono font-bold">/exec</code>）。</p>
                         </div>
@@ -633,17 +714,22 @@
 
                     <div class="relative">
                         <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-3 border-2 border-slate-300 rounded-xl text-xs font-mono focus:outline-none focus:border-amber-500">
-                        <div id="gas-url-hint" class="text-[11px] mt-1 font-bold text-slate-500"></div>
                     </div>
 
-                    <!-- 診斷結果反饋區塊 -->
                     <div id="diagnostic-result-box" class="hidden p-3 rounded-xl border text-xs leading-relaxed"></div>
 
-                    <!-- 防呆模式與自動保存開關 -->
+                    <!-- 雲端保存規則說明 -->
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+                        <p class="font-bold flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> 雲端優化機制說明：</p>
+                        <p class="mt-1">1. 每次存檔皆會於雲端追加一份獨立存取紀錄（帶時間標記）。</p>
+                        <p>2. 雲端系統會自動保留近 30 天的存取紀錄，逾期 30 天以上的歷史版本自動清理覆蓋。</p>
+                        <p>3. 每次進入系統時，將<strong>精準讀取最後一次也是最新發布的紀錄</strong>，並徹底跳過瀏覽器快取。</p>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200">
                         <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
                             <input type="checkbox" id="auto-cloud-save-toggle" onchange="toggleAutoCloudSave(this.checked)" class="w-4 h-4 text-amber-600 rounded">
-                            <span>啟用「資料異動自動雲端備份」</span>
+                            <span>啟用「資料異動自動雲端存取 (帶時間紀錄)」</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
                             <input type="checkbox" id="foolproof-mode-toggle" onchange="toggleFoolproofMode(this.checked)" class="w-4 h-4 text-emerald-600 rounded" checked>
@@ -655,11 +741,11 @@
                         <button onclick="saveGasSetting()" class="touch-btn bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-xs">儲存網址設定</button>
                         <button onclick="saveDataToCloud(true)" class="touch-btn bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <span>立即同步至雲端</span>
+                            <span>立即存取至雲端 (建立新版紀錄)</span>
                         </button>
-                        <button onclick="loadDataFromCloudWithConfirm()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1">
+                        <button onclick="loadLatestDataFromCloud(true)" class="touch-btn bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1">
                             <i class="fa-solid fa-cloud-arrow-down"></i>
-                            <span>從雲端載入覆蓋</span>
+                            <span>讀取最新最後紀錄 (跳過暫存)</span>
                         </button>
                     </div>
                 </div>
@@ -704,7 +790,7 @@
             </div>
             <div class="p-5 overflow-y-auto flex-1 space-y-4">
                 <p class="text-xs text-amber-900 font-bold bg-amber-100/80 p-3 rounded-2xl border border-amber-300">
-                    💡 點選品項卡片右側的「兌換」即可為學生兌換獎勵，系統會自動扣除對應的果實數量。
+                    💡 點選品項卡片右側的「兌換」即可為學生兌換獎勵，系統會自動扣除對應的果實數量並保留歷程。
                 </p>
                 <div id="reward-cards-container" class="reward-grid">
                 </div>
@@ -779,7 +865,7 @@
         </div>
     </div>
 
-    <!-- Modal 6. 皮克敏生態與頭像圖鑑 (含快捷贈送品種按鈕) -->
+    <!-- Modal 6. 皮克敏生態與頭像圖鑑 -->
     <div id="pikmin-dex-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="bg-lime-50 rounded-3xl shadow-2xl border-4 border-lime-600 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
             <div class="bg-lime-800 text-white p-4 flex justify-between items-center border-b-4 border-lime-950">
@@ -810,7 +896,7 @@
             <div class="flex items-center gap-6">
                 <div class="text-right">
                     <div id="fs-clock-time" class="text-3xl font-black text-amber-300 font-mono">12:00:00</div>
-                    <div id="fs-clock-date" class="text-xs text-emerald-300">2026/09/15</div>
+                    <div id="fs-clock-date" class="text-xs text-emerald-300">2026/09/19</div>
                 </div>
                 <button onclick="toggleFullScreenBlackboard()" class="touch-btn bg-amber-500 text-amber-950 font-black px-5 py-2.5 rounded-2xl text-base shadow border-2 border-amber-300">❌ 離開全屏</button>
             </div>
@@ -892,7 +978,7 @@
                 <span>⚡ 批次登錄班級隊員</span>
             </h3>
             <p class="text-xs text-slate-600 mb-3 leading-relaxed">
-                請在下方輸入或貼上學生名單，每行一位。支援格式：<br>
+                請在下方輸入或貼上學生名單，每行一位：<br>
                 • <code class="bg-slate-100 px-1 py-0.5 rounded border font-mono">座號 姓名</code>（例如：<code class="text-amber-700 font-bold">1 林小綠</code>）<br>
                 • 僅輸入<code class="bg-slate-100 px-1 py-0.5 rounded border font-mono">姓名</code>（系統自動編號）
             </p>
@@ -953,10 +1039,9 @@
             <div class="p-5 bg-nature-50 space-y-4 flex-1 flex flex-col">
                 <input type="hidden" id="board-editor-target-type" value="">
                 
-                <!-- 快捷文字工具 -->
                 <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span class="font-bold text-slate-600">快捷文字小幫手：</span>
-                    <div class="flex flex-wrap gap-1.5" id="board-editor-quick-tags">
+                    <div class="flex flex-wrap gap-1.5">
                         <button type="button" onclick="insertQuickBoardText('• ')" class="bg-white hover:bg-slate-100 border border-slate-300 px-2 py-1 rounded-lg text-slate-700 font-bold">+ 項目符號 (•)</button>
                         <button type="button" onclick="insertQuickBoardText('【請注意】')" class="bg-amber-100 hover:bg-amber-200 border border-amber-300 px-2 py-1 rounded-lg text-amber-900 font-bold">+ 【請注意】</button>
                         <button type="button" onclick="insertQuickBoardText('明日攜帶：')" class="bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 px-2 py-1 rounded-lg text-emerald-900 font-bold">+ 明日攜帶：</button>
@@ -983,6 +1068,8 @@
     </div>
 
     <script>
+        const RETENTION_DAYS = 30; // 30天履歷自動保留期限
+
         const PIKMIN_TYPES = [
             { id: 'red', name: '紅皮克敏', color: '#ef4444', icon: '🔴', cost: 0, desc: '勇敢不怕火，尖鼻子戰鬥力強！預設開放。' },
             { id: 'yellow', name: '黃皮克敏', color: '#eab308', icon: '🟡', cost: 50, desc: '大耳朵靈敏，身體輕盈抗雷電！' },
@@ -1076,6 +1163,7 @@
                     announcementText: '明天下午為戶外生態觀察，請著運動服並攜帶水壺！',
                     mottoText: '「團結合作，齊心收集探險果實！」',
                     lastAttendanceRecord: null,
+                    attendanceLogs: [], // 30天點名作業歷史
                     rewards: [
                         { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
                         { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
@@ -1091,12 +1179,37 @@
             }
         };
 
-        const localSaved = localStorage.getItem('pikmin_app_data_v3');
+        // 自動清理超過 30 天的歷史紀錄
+        function pruneExpiredRecords(classesObj) {
+            const cutoffTime = Date.now() - (RETENTION_DAYS * 24 * 60 * 60 * 1000);
+            Object.keys(classesObj).forEach(cId => {
+                const cls = classesObj[cId];
+                if (cls.attendanceLogs && Array.isArray(cls.attendanceLogs)) {
+                    cls.attendanceLogs = cls.attendanceLogs.filter(log => {
+                        const t = log.timestampMs || new Date(log.dateTime).getTime();
+                        return isNaN(t) || t >= cutoffTime;
+                    });
+                }
+                if (cls.students && Array.isArray(cls.students)) {
+                    cls.students.forEach(st => {
+                        if (st.history && Array.isArray(st.history)) {
+                            st.history = st.history.filter(h => {
+                                const t = h.timestampMs || new Date(h.timestamp).getTime();
+                                return isNaN(t) || t >= cutoffTime;
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        const localSaved = localStorage.getItem('pikmin_app_data_v4');
         if (localSaved) {
             try {
                 const parsed = JSON.parse(localSaved);
                 if (parsed.classes) appState.classes = parsed.classes;
                 if (parsed.reasons) appState.reasons = parsed.reasons;
+                pruneExpiredRecords(appState.classes);
             } catch(e) {
                 console.error("載入舊資料失敗", e);
             }
@@ -1153,7 +1266,8 @@
         let autoSaveCloudTimer = null;
 
         function saveData(triggerCloud = true) {
-            localStorage.setItem('pikmin_app_data_v3', JSON.stringify({
+            pruneExpiredRecords(appState.classes);
+            localStorage.setItem('pikmin_app_data_v4', JSON.stringify({
                 classes: appState.classes,
                 reasons: appState.reasons
             }));
@@ -1175,7 +1289,7 @@
 
             if (status === 'synced') {
                 badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500 text-emerald-300 hover:bg-emerald-900 transition-all flex items-center gap-1";
-                text.innerText = "☁️ 雲端已同步";
+                text.innerText = "☁️ 雲端最新";
             } else if (status === 'syncing') {
                 badge.className = "cursor-pointer text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-500 text-amber-300 hover:bg-amber-900 transition-all flex items-center gap-1";
                 text.innerText = "雲端同步中...";
@@ -1190,12 +1304,17 @@
 
         function getCurrentClass() {
             const cls = appState.classes[appState.currentClassId];
-            if (cls && !cls.rewards) {
-                cls.rewards = [
-                    { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
-                    { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
-                    { id: 'r3', name: "當一日小幫手", cost: 30, icon: "🍌", stock: -1 }
-                ];
+            if (cls) {
+                if (!cls.rewards) {
+                    cls.rewards = [
+                        { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
+                        { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
+                        { id: 'r3', name: "當一日小幫手", cost: 30, icon: "🍌", stock: -1 }
+                    ];
+                }
+                if (!cls.attendanceLogs) {
+                    cls.attendanceLogs = [];
+                }
             }
             return cls;
         }
@@ -1246,9 +1365,9 @@
             if (!cls) return;
 
             document.getElementById('current-class-badge').innerText = cls.name;
-            document.getElementById('board-homework').innerText = cls.homeworkText || '尚無作業';
-            document.getElementById('board-announcement').innerText = cls.announcementText || '尚無公告';
-            document.getElementById('board-motto').innerText = cls.mottoText || '「齊心協力，勇往直前！」';
+            document.getElementById('board-homework').innerText = cls.homeworkText || '尚無作業事項';
+            document.getElementById('board-announcement').innerText = cls.announcementText || '目前無最新班級公告';
+            document.getElementById('board-motto').innerText = cls.mottoText || '「齊心協力，勇敢探索！」';
 
             const indicator = document.getElementById('board-attendance-indicator');
             if (cls.lastAttendanceRecord) {
@@ -1593,6 +1712,7 @@
             student.history.unshift({
                 id: Date.now(),
                 timestamp: new Date().toLocaleString(),
+                timestampMs: Date.now(),
                 reason: `兌換獎勵：${reward.name}`,
                 delta: -reward.cost,
                 pointsAfter: student.score
@@ -1655,6 +1775,7 @@
             student.history.unshift({
                 id: Date.now(),
                 timestamp: new Date().toLocaleString(),
+                timestampMs: Date.now(),
                 reason: reasonTitle,
                 delta: delta,
                 pointsAfter: student.score
@@ -1737,6 +1858,7 @@
                 st.history.unshift({
                     id: Date.now() + Math.random(),
                     timestamp: new Date().toLocaleString(),
+                    timestampMs: Date.now(),
                     reason: `[小隊獎勵] ${reasonTitle}`,
                     delta: delta,
                     pointsAfter: st.score
@@ -1850,6 +1972,7 @@
             student.history.unshift({
                 id: Date.now(),
                 timestamp: new Date().toLocaleString(),
+                timestampMs: Date.now(),
                 reason: `[老師特許贈送] 解鎖了 ${pikminInfo.icon} ${pikminInfo.name}`,
                 delta: 0,
                 pointsAfter: student.score
@@ -1895,6 +2018,7 @@
             student.history.unshift({
                 id: Date.now(),
                 timestamp: new Date().toLocaleString(),
+                timestampMs: Date.now(),
                 reason: `[老師特許贈送] 解鎖了 ${pikminInfo.icon} ${pikminInfo.name}`,
                 delta: 0,
                 pointsAfter: student.score
@@ -1945,7 +2069,7 @@
             logsList.innerHTML = '';
 
             if (!student.history || student.history.length === 0) {
-                logsList.innerHTML = `<div class="text-center py-8 text-slate-500 font-bold text-xs">目前無果實異動紀錄</div>`;
+                logsList.innerHTML = `<div class="text-center py-8 text-slate-500 font-bold text-xs">目前無果實異動紀錄 (保留近30天)</div>`;
             } else {
                 student.history.forEach(log => {
                     const isPlus = log.delta > 0;
@@ -2194,8 +2318,10 @@
 
             const rawDateTime = document.getElementById('attendance-datetime-input').value;
             let formattedDateTime = '';
+            let timestampMs = Date.now();
             if (rawDateTime) {
                 const d = new Date(rawDateTime);
+                timestampMs = d.getTime();
                 formattedDateTime = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
             } else {
                 formattedDateTime = new Date().toLocaleString();
@@ -2212,15 +2338,243 @@
 
             const present = tempCheckState.filter(s => s.status === '出席').length;
             const total = tempCheckState.length;
+            const hwDone = tempCheckState.filter(s => s.hwStatus === '已繳交').length;
+
+            const recordLog = {
+                id: Date.now(),
+                dateTime: formattedDateTime,
+                timestampMs: timestampMs,
+                mode: currentCheckMode,
+                summary: (currentCheckMode === 'attendance') ? `出席 ${present}/${total} 人` : `作業已繳 ${hwDone}/${total} 人`,
+                details: tempCheckState.map(s => ({
+                    no: s.no,
+                    name: s.name,
+                    status: s.status,
+                    hwStatus: s.hwStatus
+                }))
+            };
+
+            if (!cls.attendanceLogs) cls.attendanceLogs = [];
+            cls.attendanceLogs.unshift(recordLog);
+
             cls.lastAttendanceRecord = {
                 dateTime: formattedDateTime,
-                summary: `出席 ${present}/${total} 人`
+                summary: recordLog.summary
             };
 
             saveData();
             renderAll();
             closeAttendanceModal();
-            showToast(`📅 點名結果已儲存！記錄時間：${formattedDateTime}`);
+            showToast(`📅 點名/作業已儲存並登錄歷史！時間：${formattedDateTime}`);
+        }
+
+        // ==========================================
+        // 近 30 天歷史紀錄查詢模組 (加減分 & 作業點名)
+        // ==========================================
+        let currentQueryTab = 'score';
+        let currentFilteredResults = [];
+
+        function openHistoryQueryModal() {
+            renderHistoryQueryTable();
+            document.getElementById('history-query-modal').classList.remove('hidden');
+        }
+
+        function closeHistoryQueryModal() {
+            document.getElementById('history-query-modal').classList.add('hidden');
+        }
+
+        function switchQueryTab(tab) {
+            currentQueryTab = tab;
+            document.getElementById('query-tab-score').className = (tab === 'score') ? "px-4 py-2 rounded-xl text-xs font-black bg-indigo-700 text-white shadow" : "px-4 py-2 rounded-xl text-xs font-black bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100";
+            document.getElementById('query-tab-attendance').className = (tab === 'attendance') ? "px-4 py-2 rounded-xl text-xs font-black bg-indigo-700 text-white shadow" : "px-4 py-2 rounded-xl text-xs font-black bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100";
+            renderHistoryQueryTable();
+        }
+
+        function renderHistoryQueryTable() {
+            const cls = getCurrentClass();
+            if (!cls) return;
+
+            const nameFilter = (document.getElementById('query-filter-student').value || '').trim().toLowerCase();
+            const keywordFilter = (document.getElementById('query-filter-keyword').value || '').trim().toLowerCase();
+            const daysFilter = parseInt(document.getElementById('query-filter-days').value, 10) || 30;
+            const cutoffTime = Date.now() - (daysFilter * 24 * 60 * 60 * 1000);
+
+            const thead = document.getElementById('query-table-head');
+            const tbody = document.getElementById('query-table-body');
+            const emptyState = document.getElementById('query-empty-state');
+            const summaryEl = document.getElementById('query-count-summary');
+
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            currentFilteredResults = [];
+
+            if (currentQueryTab === 'score') {
+                thead.innerHTML = `
+                    <tr>
+                        <th class="p-3">時間</th>
+                        <th class="p-3">座號</th>
+                        <th class="p-3">姓名</th>
+                        <th class="p-3">加減事由</th>
+                        <th class="p-3">果實異動</th>
+                        <th class="p-3">異動後果實</th>
+                    </tr>
+                `;
+
+                const records = [];
+                cls.students.forEach(st => {
+                    if (st.history) {
+                        st.history.forEach(h => {
+                            const timeMs = h.timestampMs || new Date(h.timestamp).getTime();
+                            if (isNaN(timeMs) || timeMs >= cutoffTime) {
+                                records.push({
+                                    studentNo: st.no,
+                                    studentName: st.name,
+                                    timestamp: h.timestamp,
+                                    timestampMs: timeMs,
+                                    reason: h.reason,
+                                    delta: h.delta,
+                                    pointsAfter: h.pointsAfter
+                                });
+                            }
+                        });
+                    }
+                });
+
+                records.sort((a,b) => b.timestampMs - a.timestampMs);
+
+                currentFilteredResults = records.filter(r => {
+                    const matchStudent = !nameFilter || r.studentName.toLowerCase().includes(nameFilter) || String(r.studentNo) === nameFilter;
+                    const matchKeyword = !keywordFilter || r.reason.toLowerCase().includes(keywordFilter);
+                    return matchStudent && matchKeyword;
+                });
+
+                if (currentFilteredResults.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                    currentFilteredResults.forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-100/80 transition-colors";
+                        const isPlus = r.delta > 0;
+                        const isZero = r.delta === 0;
+                        const badgeColor = isPlus ? "text-emerald-700 font-black" : isZero ? "text-amber-700 font-bold" : "text-rose-700 font-black";
+                        const sign = isPlus ? "+" : "";
+
+                        tr.innerHTML = `
+                            <td class="p-3 text-slate-500 font-mono">${r.timestamp}</td>
+                            <td class="p-3 font-bold">${r.studentNo} 號</td>
+                            <td class="p-3 font-black text-slate-800">${r.studentName}</td>
+                            <td class="p-3 text-slate-700 font-medium">${r.reason}</td>
+                            <td class="p-3 ${badgeColor}">${sign}${r.delta} 🍓</td>
+                            <td class="p-3 font-bold text-amber-600">${r.pointsAfter}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                summaryEl.innerText = `加減分紀錄：共 ${currentFilteredResults.length} 筆`;
+            } else {
+                thead.innerHTML = `
+                    <tr>
+                        <th class="p-3">登記時間</th>
+                        <th class="p-3">座號</th>
+                        <th class="p-3">姓名</th>
+                        <th class="p-3">作業繳交狀態</th>
+                        <th class="p-3">當日出缺席</th>
+                        <th class="p-3">批次紀錄摘要</th>
+                    </tr>
+                `;
+
+                const logs = cls.attendanceLogs || [];
+                const expandedList = [];
+
+                logs.forEach(log => {
+                    const tMs = log.timestampMs || new Date(log.dateTime).getTime();
+                    if (isNaN(tMs) || tMs >= cutoffTime) {
+                        (log.details || []).forEach(detail => {
+                            expandedList.push({
+                                dateTime: log.dateTime,
+                                timestampMs: tMs,
+                                summary: log.summary,
+                                mode: log.mode,
+                                studentNo: detail.no,
+                                studentName: detail.name,
+                                status: detail.status,
+                                hwStatus: detail.hwStatus
+                            });
+                        });
+                    }
+                });
+
+                expandedList.sort((a,b) => b.timestampMs - a.timestampMs);
+
+                currentFilteredResults = expandedList.filter(r => {
+                    const matchStudent = !nameFilter || r.studentName.toLowerCase().includes(nameFilter) || String(r.studentNo) === nameFilter;
+                    const matchKeyword = !keywordFilter || r.hwStatus.includes(keywordFilter) || r.status.includes(keywordFilter);
+                    return matchStudent && matchKeyword;
+                });
+
+                if (currentFilteredResults.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                    currentFilteredResults.forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-100/80 transition-colors";
+
+                        let hwStyle = "text-slate-500";
+                        if (r.hwStatus === '已繳交') hwStyle = "text-emerald-700 font-bold";
+                        if (r.hwStatus === '未繳交') hwStyle = "text-rose-700 font-black";
+                        if (r.hwStatus === '需訂正') hwStyle = "text-amber-700 font-bold";
+                        if (r.hwStatus === '缺交待補') hwStyle = "text-purple-700 font-black";
+
+                        tr.innerHTML = `
+                            <td class="p-3 text-slate-500 font-mono">${r.dateTime}</td>
+                            <td class="p-3 font-bold">${r.studentNo} 號</td>
+                            <td class="p-3 font-black text-slate-800">${r.studentName}</td>
+                            <td class="p-3 ${hwStyle}">${r.hwStatus}</td>
+                            <td class="p-3 font-bold text-slate-700">${r.status}</td>
+                            <td class="p-3 text-[11px] text-slate-400 font-medium">${r.summary || ''}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                summaryEl.innerText = `作業與點名紀錄：共 ${currentFilteredResults.length} 筆`;
+            }
+        }
+
+        function exportCurrentFilteredRecordsCSV() {
+            if (!currentFilteredResults || currentFilteredResults.length === 0) {
+                showToast('目前沒有可匯出的紀錄！', '⚠️');
+                return;
+            }
+
+            let csv = '\uFEFF'; // UTF-8 BOM
+            const cls = getCurrentClass();
+            const clsName = cls ? cls.name : '探險隊';
+
+            if (currentQueryTab === 'score') {
+                csv += "時間,座號,姓名,加減事由,果實異動,異動後果實\n";
+                currentFilteredResults.forEach(r => {
+                    csv += `"${r.timestamp}","${r.studentNo}","${r.studentName}","${r.reason}","${r.delta}","${r.pointsAfter}"\n`;
+                });
+            } else {
+                csv += "登記時間,座號,姓名,作業狀態,出缺席,批次摘要\n";
+                currentFilteredResults.forEach(r => {
+                    csv += `"${r.dateTime}","${r.studentNo}","${r.studentName}","${r.hwStatus}","${r.status}","${r.summary || ''}"\n`;
+                });
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${clsName}_近30天_${currentQueryTab === 'score' ? '加減分' : '作業點名'}_紀錄_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast('已匯出 CSV 報表！', '📊');
         }
 
         function toggleAutoCloudSave(enabled) {
@@ -2386,6 +2740,7 @@
                     announcementText: '歡迎來到新班級！',
                     mottoText: '「齊心協力，勇敢探索！」',
                     lastAttendanceRecord: null,
+                    attendanceLogs: [],
                     rewards: [
                         { id: 'r1', name: "免寫作業乙次", cost: 50, icon: "🍎", stock: -1 },
                         { id: 'r2', name: "任選座位一週", cost: 100, icon: "🍊", stock: 5 },
@@ -2725,6 +3080,7 @@
                     createSnapshot();
                     if (data.classes) appState.classes = data.classes;
                     if (data.reasons) appState.reasons = data.reasons;
+                    pruneExpiredRecords(appState.classes);
                     saveData();
                     renderAll();
                     showToast("備份資料成功匯入！");
@@ -2739,7 +3095,7 @@
         function resetDataToDefault() {
             if (confirm("【防呆警報】警告：這將會清除目前所有班級、點名與學生資料，恢復為預設範例！確定執行嗎？")) {
                 createSnapshot();
-                localStorage.removeItem('pikmin_app_data_v3');
+                localStorage.removeItem('pikmin_app_data_v4');
                 location.reload();
             }
         }
@@ -2759,7 +3115,10 @@
             showToast("GAS 雲端網址已儲存！");
         }
 
-        // 雲端連線自我診斷工具 (Diagnostics)
+        // ==========================================
+        // 雲端除錯與讀寫優化 (強固防快取 + 30天覆蓋)
+        // ==========================================
+
         async function runCloudDiagnostics() {
             const urlInput = document.getElementById('gas-url-input');
             const resultBox = document.getElementById('diagnostic-result-box');
@@ -2767,7 +3126,7 @@
 
             resultBox.classList.remove('hidden');
             resultBox.className = "p-4 rounded-2xl border text-xs leading-relaxed bg-amber-50 border-amber-300 text-amber-900";
-            resultBox.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin mr-1"></i> 正在連線檢測 Google Apps Script 伺服器...</div>`;
+            resultBox.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin mr-1"></i> 正在連線檢測 Google Apps Script 伺服器最新狀態...</div>`;
 
             if (!url) {
                 resultBox.className = "p-4 rounded-2xl border text-xs leading-relaxed bg-rose-50 border-rose-300 text-rose-900";
@@ -2788,20 +3147,13 @@
                 return;
             }
 
-            if (!url.startsWith('https://script.google.com/macros/s/')) {
-                resultBox.className = "p-4 rounded-2xl border text-xs leading-relaxed bg-amber-50 border-amber-300 text-amber-900";
-                resultBox.innerHTML = `
-                    <div class="font-bold text-sm mb-1">⚠️ 提示：網址格式不標準</div>
-                    <div>標準 GAS Web App 網址應以 <code class="bg-white px-1 py-0.5 rounded font-mono">https://script.google.com/macros/s/.../exec</code> 開頭。請確認是否複製完整。</div>
-                `;
-            }
-
-            // 執行 GET Ping 測試
             try {
-                const pingUrl = url + (url.includes('?') ? '&' : '?') + 'action=ping&_t=' + Date.now();
+                // 強制加入隨機防暫存碼與 no-store
+                const pingUrl = url + (url.includes('?') ? '&' : '?') + 'action=ping&_nocache=' + Date.now() + Math.random();
                 const res = await fetch(pingUrl, {
                     method: 'GET',
                     mode: 'cors',
+                    cache: 'no-store',
                     redirect: 'follow'
                 });
 
@@ -2814,8 +3166,9 @@
                 resultBox.innerHTML = `
                     <div class="font-bold text-sm mb-1">✅ 雲端連線診斷成功！</div>
                     <div>• 伺服器狀態：<strong>${data.message || '連線正常'}</strong></div>
-                    <div>• 伺服器時間：${data.timestamp || new Date().toLocaleString()}</div>
-                    <div class="mt-2 text-emerald-800">您的 Google Apps Script API 權限設定完全正確，可以正常進行雙向雲端備份！</div>
+                    <div>• 雲端最後存取紀錄時間：<strong>${data.lastRecordTime || data.timestamp || '初次配置'}</strong></div>
+                    <div>• 雲端保留紀錄數：<strong>${data.totalSnapshots || 1} 筆 (30天滾動保留)</strong></div>
+                    <div class="mt-2 text-emerald-800">API 權限與雙向快照傳輸正常，讀取時將永遠獲取最新一份版本！</div>
                 `;
             } catch (err) {
                 console.error("診斷詳細錯誤:", err);
@@ -2823,48 +3176,50 @@
                 resultBox.innerHTML = `
                     <div class="font-bold text-sm mb-1">❌ 雲端連線失敗 (CORS 或權限錯誤)</div>
                     <div class="mb-2 text-rose-700">錯誤訊息：<code>${err.message || err.toString()}</code></div>
-                    <div class="font-bold">常見原因與 10 秒解決步驟：</div>
+                    <div class="font-bold">排查步驟：</div>
                     <ol class="list-decimal list-inside space-y-1 mt-1">
-                        <li><strong>誰可以存取 (Who has access)</strong>：請確認部署時是否選為<strong>「所有人 (Anyone)」</strong>。若選為「只有我自己」，瀏覽器會因安全機制阻擋連線。</li>
-                        <li><strong>重新部署新版本</strong>：在 Apps Script 點擊「部署」>「新增部署作業」建立一個全新的版本。</li>
-                        <li><strong>網路阻擋</strong>：若使用校園學術網路，部分學校防火牆會限制對 Google 腳本的 Webhook 呼叫，可嘗試切換手機熱點測試。</li>
+                        <li><strong>誰可以存取 (Who has access)</strong>：請確認部署時是否選為<strong>「所有人 (Anyone)」</strong>。</li>
+                        <li><strong>新增部署作業</strong>：更動 GAS 程式碼後，必須點選「新增部署作業」才能使新版 API 生效。</li>
                     </ol>
                 `;
             }
         }
 
-        async function loadDataFromCloudWithConfirm() {
-            if (!confirm('【防呆提示】從雲端載入將會覆蓋當前瀏覽器中的本地資料！是否確定載入？（系統已為您自動備份快照）')) {
-                return;
-            }
-            loadDataFromCloud();
-        }
-
-        async function loadDataFromCloud() {
+        // 讀取最新且最後的雲端紀錄 (徹底防暫存)
+        async function loadLatestDataFromCloud(isManual = false) {
             if (!appState.gasUrl) { 
-                showToast('請先設定 GAS Web App URL！', '⚠️'); 
+                if (isManual) showToast('請先設定 GAS Web App URL！', '⚠️'); 
                 return; 
             }
+
             try {
-                showToast("雲端資料載入中...", "⏳");
+                if (isManual) showToast("正在讀取雲端最新最後紀錄...", "⏳");
                 updateCloudBadgeUI('syncing');
 
-                const getUrl = appState.gasUrl + (appState.gasUrl.includes('?') ? '&' : '?') + 'action=get&_t=' + Date.now();
+                // 加入強力防快取參數：action=get_latest & _t & _rand
+                const getUrl = appState.gasUrl + (appState.gasUrl.includes('?') ? '&' : '?') 
+                             + 'action=get_latest&_t=' + Date.now() + '&_r=' + Math.random();
+
                 const res = await fetch(getUrl, {
                     method: 'GET',
                     mode: 'cors',
+                    cache: 'no-store',
+                    headers: {
+                        'Pragma': 'no-cache',
+                        'Cache-Control': 'no-cache'
+                    },
                     redirect: 'follow'
                 });
 
                 if (!res.ok) {
-                    throw new Error(`HTTP 錯誤: ${res.status}`);
+                    throw new Error(`HTTP 錯誤狀態: ${res.status}`);
                 }
 
                 const data = await res.json();
                 
                 if (data && data.status === 'empty') {
                     updateCloudBadgeUI('local');
-                    showToast('試算表中尚無資料，請先點擊「立即同步至雲端」！', '💡');
+                    if (isManual) showToast('雲端尚無存取歷史，請先點擊「立即存取至雲端」！', '💡');
                     return;
                 }
 
@@ -2872,22 +3227,27 @@
                     createSnapshot();
                     appState.classes = data.classes;
                     if (data.reasons) appState.reasons = data.reasons;
+                    pruneExpiredRecords(appState.classes);
+                    
                     saveData(false);
                     renderAll();
                     updateCloudBadgeUI('synced');
-                    showToast("☁️ 已成功從雲端同步最新的資料！", "✅");
+                    const syncTimeNotice = data.timestamp || data.lastSyncTime || '最新';
+                    if (isManual) {
+                        showToast(`☁️ 已成功載入最新雲端紀錄！(${syncTimeNotice})`, "✅");
+                    }
                 } else {
                     updateCloudBadgeUI('error');
-                    showToast('從雲端讀取資料失敗：' + (data.message || '格式不符'), '⚠️');
+                    if (isManual) showToast('雲端資料格式不符：' + (data.message || ''), '⚠️');
                 }
             } catch (err) {
-                console.error("載入失敗詳情:", err);
+                console.error("讀取最新雲端紀錄失敗:", err);
                 updateCloudBadgeUI('error');
-                showToast('從雲端讀取失敗，請點選「一鍵連線診斷」檢查！', '⚠️');
+                if (isManual) showToast('無法讀取最新雲端紀錄，請確認網路或執行診斷！', '⚠️');
             }
         }
 
-        // 強固版雲端儲存 (使用 Content-Type: text/plain 規避 CORS Preflight 阻擋)
+        // 將最新狀態推送至雲端（附加時間戳記並由後端執行 30 天自動清理覆蓋）
         async function saveDataToCloud(showManualAlert = false) {
             if (!appState.gasUrl) { 
                 if (showManualAlert) showToast('請先在設定中填寫 GAS Web App 網址！', '⚠️'); 
@@ -2895,15 +3255,24 @@
             }
             try {
                 updateCloudBadgeUI('syncing');
+                pruneExpiredRecords(appState.classes);
+
+                const nowISO = new Date().toISOString();
+                const nowLocale = new Date().toLocaleString();
+
                 const payload = {
+                    action: 'save_snapshot',
+                    timestamp: nowLocale,
+                    timestampIso: nowISO,
+                    retentionDays: RETENTION_DAYS,
                     classes: appState.classes,
-                    reasons: appState.reasons,
-                    lastSyncTime: new Date().toLocaleString()
+                    reasons: appState.reasons
                 };
 
                 const res = await fetch(appState.gasUrl, {
                     method: 'POST',
                     mode: 'cors',
+                    cache: 'no-store',
                     redirect: 'follow',
                     headers: { 
                         'Content-Type': 'text/plain;charset=utf-8' 
@@ -2912,32 +3281,38 @@
                 });
 
                 if (!res.ok) {
-                    throw new Error(`伺服器回應錯誤: ${res.status}`);
+                    throw new Error(`伺服器錯誤: ${res.status}`);
                 }
 
                 const result = await res.json();
                 if (result.status === 'success') {
                     updateCloudBadgeUI('synced');
-                    if (showManualAlert) showToast("☁️ 已成功同步備份至 Google 試算表！", "✅");
+                    if (showManualAlert) {
+                        showToast(`☁️ 已成功建立雲端存取紀錄！(時間：${nowLocale})`, "✅");
+                    }
                 } else {
                     updateCloudBadgeUI('error');
-                    const errMsg = result.message || '未知錯誤';
                     if (showManualAlert) {
-                        alert('【雲端儲存失敗】\n' + errMsg + '\n\n請至系統設定「☁️ 雲端同步與檢測」點擊「一鍵連線診斷」。');
+                        alert('【雲端儲存失敗】\n' + (result.message || '未知錯誤'));
                     }
                 }
             } catch (err) {
-                console.error("儲存失敗詳情:", err);
+                console.error("儲存雲端失敗:", err);
                 updateCloudBadgeUI('error');
                 if (showManualAlert) {
-                    alert('【雲端儲存失敗】\n原因：' + err.message + '\n\n提示：此問題通常是因 GAS 部署存取權限未設為「所有人 (Anyone)」，或網址結尾為 /edit 所致。\n請進入「系統設定」>「一鍵連線診斷」進行測試！');
+                    alert('【雲端存取失敗】\n原因：' + err.message + '\n\n請至「系統設定」>「一鍵連線診斷」檢查 Web App 權限設定！');
                 }
             }
         }
 
-        window.onload = function() {
+        // 頁面初次載入：自動優先讀取最新且最後的雲端紀錄
+        window.onload = async function() {
             renderAll();
-            updateCloudBadgeUI(appState.gasUrl ? 'synced' : 'local');
+            if (appState.gasUrl) {
+                await loadLatestDataFromCloud(false);
+            } else {
+                updateCloudBadgeUI('local');
+            }
         };
     </script>
 </body>
